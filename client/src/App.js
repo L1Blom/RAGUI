@@ -5,6 +5,9 @@ import "bootstrap/dist/js/bootstrap.min.js";
 
 import Chat from "./pages/Chat";
 import Upload from "./pages/Upload";
+import Reload from "./pages/Reload";
+import Clear from "./pages/Clear";
+import Models from "./pages/Models";
 
 function App() {
   return (
@@ -12,6 +15,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Chat />} />
         <Route path="/upload" element={<Upload />} />
+        <Route path="/reload" element={<Reload />} />
+        <Route path="/clear" element={<Clear />} />
+        <Route path="/model" element={<Models />} />
       </Routes>
     </BrowserRouter>
   );

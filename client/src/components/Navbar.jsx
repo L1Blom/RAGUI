@@ -16,18 +16,33 @@ function Navbar() {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon"></span>
+        <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <a className="nav-link active" aria-current="page" href="/">
-                Home
+                Chat
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/upload">
                 Upload
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/reload">
+                Reload
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/clear">
+                Clear history
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/model">
+                Set model
               </a>
             </li>
           </ul>

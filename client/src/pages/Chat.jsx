@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
+import Globals from "../components/Globals";
 import Message from "../components/Message";
 import Svg from "../components/Svg";
 import "./Chat.css";
@@ -29,11 +30,13 @@ function Chat() {
   const [chatMessages, setchatMessages] = useState([
     {
       position: "left_bubble",
-      message: "Hello there,I am your assistant. How can i help you today? ",
+      message: "Hello there, I am your assistant. How can i help you today? ",
+      score: "",
+      page_content: ""
     },
   ]);
 
-  function askAI() {
+  function askAI(mode) {
     var prompt_input = document.getElementById("chat-input");
     var prompt = prompt_input.value;
     if (prompt.replaceAll(" ", "") === "") {
@@ -41,20 +44,43 @@ function Chat() {
     }
     prompt_input.value = "";
 
-    const data = {
-      chatHistory: JSON.stringify(chatMessages),
-      prompt: prompt,
-    };
+    let api = "http://192.168.2.200:5000/prompt/centric"
+    if (mode === 'search') {
+      api = `${api}/search`
+    }
+    const messages = [
+      ...chatMessages,
+      {
+        position: "right_bubble",
+        message: prompt,
+        data: null
+      }
+    ];
+    setchatMessages(messages);
+    chat_scroll_up()
 
-    fetch("/ask_ai", {
+    fetch(api, {
       method: "POST",
-      body: JSON.stringify(data), // Convert data to JSON
+      body: "prompt="+prompt,
       headers: {
-        "Content-Type": "application/json", // Set the content type to JSON
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (mode === 'prompt') {
+          return response.text()
+        } else {
+          return response.json()
+        }
+      })
       .then((resData) => {
+        let myMessage = ""
+        let data = null
+        if (mode === 'prompt') {
+          myMessage = resData
+        } else {
+          data = resData
+        }
         const messages = [
           ...chatMessages,
           {
@@ -63,18 +89,23 @@ function Chat() {
           },
           {
             position: "left_bubble",
-            message: resData.result,
+            message: myMessage,
+            data: data
           },
         ];
         setchatMessages(messages);
         chat_scroll_up()
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log("-->>")
+        console.log(err)
+      });
   }
 
   return (
     <div>
       <Navbar />
+      <Globals />
       <div>
         <div id="assistant-chat" className="hide ai_chart">
           <div className="header-chat">
@@ -97,6 +128,7 @@ function Chat() {
                   key={key}
                   position={chatMessage.position}
                   message={chatMessage.message}
+                  data={chatMessage.data}
                 />
               ))}
             </div>
@@ -104,17 +136,53 @@ function Chat() {
               <input
                 type="text"
                 id="chat-input"
-                placeholder="What can i help you with..."
+                placeholder="How can I help..."
                 maxLength="400"
               />
               <a
-                onClick={askAI}
+                onClick={() => askAI('search')}
                 href="#send_message"
                 id="send-it"
                 className="send_it"
               >
-                <svg viewBox="0 0 448 448">
-                  <path d="M.213 32L0 181.333 320 224 0 266.667.213 416 448 224z" />
+                <svg
+                  viewBox="4 3 15 15"
+                  fill="currentColor"
+                  height="1em"
+                  width="1em"
+                >
+                  <g
+                    fill="none"
+                    fillRule="evenodd"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M16.5 15.5v-10a2 2 0 00-2-2h-8a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2zM9.5 7.5h5M6.5 7.5h1M9.5 10.5h5M6.5 10.5h1M9.5 13.5h5M6.5 13.5h1" />
+                  </g>
+                </svg>
+              </a>
+              <a
+                onClick={() => askAI('prompt')}
+                href="#send_message"
+                id="send-it"
+                className="send_it"
+              >
+                <svg
+                  viewBox="4 3 15 15"
+                  fill="currentColor"
+                  height="1em"
+                  width="1em"
+                >
+                  <g
+                    fill="none"
+                    fillRule="evenodd"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M16.5 15.5v-10a2 2 0 00-2-2h-8a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2zM7.5 8.5h5M7.5 10.5h6M7.5 12.5h3" />
+                  </g>
                 </svg>
               </a>
             </div>
