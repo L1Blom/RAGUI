@@ -8,6 +8,7 @@ function Message(props) {
   let data = props.data
   let myTime = new Date().getTime()
   let api = myConfig.API + '/prompt/' + myConfig.Project
+  
   const rows = () => {
     if (data != null) {
       let output = data.filter(row => row.score >= myConfig.Score)
