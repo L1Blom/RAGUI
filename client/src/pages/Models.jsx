@@ -2,7 +2,7 @@ import React from 'react';
 import { Component } from 'react';
 import AsyncSelect from 'react-select/async'
 import Navbar from '../components/Navbar';
-
+import myConfig from '../components/config';
 class Models extends Component {
 
   state = {
@@ -16,16 +16,17 @@ class Models extends Component {
   invoke_model(model) {
     this.setState({ data: 'Setting model' })
     async function fetchData(model) {
-      const response = await fetch(
-        'http://192.168.2.200:5000/prompt/centric/model?model='+model
-      );
+      let api = `${myConfig.API}/prompt/${myConfig.Project}/model?model=`+model
+      const response = await fetch(`${api}`);
       return await response.text()
     }
     fetchData(model).then(data => { this.setState({ data: data}) });
   }
 
   componentDidMount() {
-    fetch('http://localhost:5000/prompt/centric/modelnames')
+    let api = `${myConfig.API}/prompt/${myConfig.Project}/modelnames`
+
+    fetch(`${api}`)
       .then(res => res.json())
         .then(data => 
           {

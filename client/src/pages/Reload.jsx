@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import Navbar from "../components/Navbar";
+import myConfig from "../components/config";
 
 function Reload() {
   const [data, setData] = useState(null);
@@ -8,9 +9,8 @@ function Reload() {
     e.preventDefault();
     setData("Loading...")
     async function fetchData() {
-      const response = await fetch(
-        "http://192.168.2.200:5000/prompt/centric/reload"
-      );
+      let api = `${myConfig.API}/prompt/${myConfig.Project}/reload`
+      const response = await fetch(`${api}`);
       const data = await response.text();
       const results = data;
       setData(results);

@@ -3,7 +3,10 @@ import Navbar from "../components/Navbar";
 import Globals from "../components/Globals";
 import Message from "../components/Message";
 import Svg from "../components/Svg";
+
 import "./Chat.css";
+import myConfig from "../components/config";
+
 function Chat() {
   // this function opens the chat
   function openChart() {
@@ -30,7 +33,7 @@ function Chat() {
   const [chatMessages, setchatMessages] = useState([
     {
       position: "left_bubble",
-      message: "Hello there, I am your assistant. How can i help you today? ",
+      message: "Hello there, I am your assistant. How can I help you today? ",
       score: "",
       page_content: ""
     },
@@ -44,7 +47,7 @@ function Chat() {
     }
     prompt_input.value = "";
 
-    let api = "http://192.168.2.200:5000/prompt/centric"
+    let api = `${myConfig.API}/prompt/${myConfig.Project}`
     if (mode === 'search') {
       api = `${api}/search`
     }
@@ -59,13 +62,18 @@ function Chat() {
     setchatMessages(messages);
     chat_scroll_up()
 
-    fetch(api, {
+    var postData = {
       method: "POST",
-      body: "prompt="+prompt,
+      body: "prompt=" + prompt,
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-      },
-    })
+      }
+    }
+    if (mode === 'search') {
+      postData.body = postData.body + "&similar=" + myConfig.Similar
+    }
+
+    fetch(api, postData)
       .then((response) => {
         if (mode === 'prompt') {
           return response.text()
@@ -143,6 +151,7 @@ function Chat() {
                 onClick={() => askAI('search')}
                 href="#send_message"
                 id="send-it"
+                title="Show context documents"
                 className="send_it"
               >
                 <svg
@@ -166,6 +175,7 @@ function Chat() {
                 onClick={() => askAI('prompt')}
                 href="#send_message"
                 id="send-it"
+                title="Process prompt!"
                 className="send_it"
               >
                 <svg

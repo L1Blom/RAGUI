@@ -1,21 +1,27 @@
 import React from "react";
 import Navbar from "../components/Navbar";
+import { useState } from "react";
+import myConfig from "../components/config";
 
 function Upload() {
+  const [data, setData] = useState("Choose file to upload");
   const handleFileSubmit = (e) => {
     e.preventDefault();
+    setData("Uploading file...")
     const formData = new FormData(e.target);
+    let api = `${myConfig.API}/prompt/${myConfig.Project}/upload`
 
     // Send formData to your server using an HTTP request (e.g., axios or fetch).
     // Replace 'YOUR_UPLOAD_API_ENDPOINT' with your actual API endpoint.
-    fetch("upload_file", {
+    fetch(`${api}`, {
       method: "POST",
       body: formData,
     })
-      .then((response) => response.json())
+      .then((response) => response.text())
       .then((data) => {
         // Handle the response from the server.
         console.log(data);
+        setData(data)
       })
       .catch((error) => {
         console.error("Error uploading the file:", error);
@@ -29,7 +35,7 @@ function Upload() {
         <form encType="multipart/form-data" onSubmit={handleFileSubmit}>
           <div className="mb-3">
             <label htmlFor="formFile" className="form-label">
-              Upload your file
+              {data}
             </label>
             <input
               name="file"

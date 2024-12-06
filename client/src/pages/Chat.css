@@ -198,19 +198,20 @@ input#chat-input {
 }
 
 a#send-it {
-    width: 30px;
+    width: 50px;
     font-weight: 700;
     padding: 1px 1px 0;
     background: var(--chat-bubble-bg);
-    border-radius: 1px;
+    color: #84a39f;
+    border-radius: 0px;
 
 
 }
 
 a#send-it svg {
     fill: var(--chat-primary-bg);
-    height: 24px;
-    width: 24px;
+    height: 48px;
+    width: 48px;
 }
 
 .start-chat .blanter-msg {

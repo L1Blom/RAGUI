@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import Navbar from "../components/Navbar";
+import myConfig from "../components/config";
 
 function Clear() {
   const [data, setData] = useState(null);
@@ -8,8 +9,9 @@ function Clear() {
     e.preventDefault();
     setData("Clearing history...")
     async function fetchData() {
+      let api = `${myConfig.API}/prompt/${myConfig.Project}/clear`
       const response = await fetch(
-        "http://192.168.2.200:5000/prompt/centric/clear"
+        `${api}`
       );
       const data = await response.text();
       const results = data;
