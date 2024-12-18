@@ -1,14 +1,20 @@
 import React from "react";
 import myConfig from "./config";
 import ReactMarkdown from "react-markdown";
+import { useState} from "react";
+
 
 function Message(props) {
   let dataRoll = props.position === "left_bubble" ? "ASSISTANT" : "USER";
   let thisClass = `chat-bubble ${props.position}`;
   let data = props.data
   let myTime = new Date().getTime()
-  let api = myConfig.API + '/prompt/' + myConfig.Project
-  
+  let api = myConfig.PROD_API + '/prompt/' + myConfig.Project
+  const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const toggleContentExpansion = () => {
+    setIsContentExpanded(!isContentExpanded);
+  };
+
   const rows = () => {
     if (data != null) {
       let output = data.filter(row => row.score >= myConfig.Score)
@@ -18,7 +24,7 @@ function Message(props) {
           let page = metadata.page
           if (typeof page === 'number') {
             page = parseInt(metadata.page) + 1
-            tpage = 'Page '+page+' from: '
+            tpage = 'Page ' + page + ' from: '
             href = href + '&time=' + myTime + index + '#page=' + page
           } else {
             page = 1
@@ -26,19 +32,34 @@ function Message(props) {
           return <div key={index}>
             <table width="100%">
               <thead>
-                <tr><th width="2%">No.</th><th align="middle" width="10%"> Score / Page</th><th>Content</th></tr>
+                <tr>
+                  <th width="4%">No.</th>
+                  <th valign="top" width="6%">Score</th>
+                  <th
+                        className="toggle-content"
+                        onClick={toggleContentExpansion}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      >
+                        {isContentExpanded ? "Content (-)" : "Content (+)"}
+                      </th></tr>
               </thead>
               <tbody>
                 <tr>
-                  <td  valign="top" width="2%">{index+1}.</td><td valign="top" align="middle" width="10%">{score.toFixed(2)} / {page}</td>
-                  <td><ReactMarkdown>{page_content}</ReactMarkdown></td>
+                  <td valign="top">{index + 1}.</td>
+                  <td valign="top">{score.toFixed(2)}</td>
+                  <td>
+                    <div className={`page-content ${isContentExpanded ? "expanded" : "collapsed"
+                      }`}><ReactMarkdown>{page_content}</ReactMarkdown></div>
+                    
+                  </td>
                 </tr>
                 <tr>
-                  <td valign="top" width="2%"></td><td colSpan={2}><a target="RAGUI" href={href}>{tpage} {metadata.source}</a></td>
+                  <td colSpan={3}><a target="RAGUI" href={href}>{tpage} {metadata.source}</a></td>
                 </tr>
               </tbody>
             </table>
-            <br />
           </div>
         })
       if (output.length > 0) {

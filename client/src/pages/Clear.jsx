@@ -1,15 +1,19 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { SettingsContext } from "../components/SettingsContext";
 import Navbar from "../components/Navbar";
-import myConfig from "../components/config";
 
 function Clear() {
+  const { settings }  = useContext(SettingsContext);
   const [data, setData] = useState(null);
+  useEffect(() => {
+  }, [settings]);
+
+
   const invoke_clear = (e) => {
     e.preventDefault();
     setData("Clearing history...")
     async function fetchData() {
-      let api = `${myConfig.API}/prompt/${myConfig.Project}/clear`
+      let api = `${settings.PROD_API}/prompt/${settings.Project}/clear`
       const response = await fetch(
         `${api}`
       );

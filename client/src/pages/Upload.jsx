@@ -1,15 +1,16 @@
-import React from "react";
 import Navbar from "../components/Navbar";
-import { useState } from "react";
-import myConfig from "../components/config";
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { SettingsContext } from "../components/SettingsContext";
 
 function Upload() {
+  const { settings }  = useContext(SettingsContext);
   const [data, setData] = useState("Choose file to upload");
+  
   const handleFileSubmit = (e) => {
     e.preventDefault();
     setData("Uploading file...")
     const formData = new FormData(e.target);
-    let api = `${myConfig.API}/prompt/${myConfig.Project}/upload`
+    let api = `${settings.PROD_API}/prompt/${settings.Project}/upload`
 
     // Send formData to your server using an HTTP request (e.g., axios or fetch).
     // Replace 'YOUR_UPLOAD_API_ENDPOINT' with your actual API endpoint.
@@ -36,7 +37,7 @@ function Upload() {
           <div className="mb-3">
             <label htmlFor="formFile" className="form-label">
               {data}
-            </label>
+            </label> 
             <input
               name="file"
               className="form-control"

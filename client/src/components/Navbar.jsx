@@ -4,8 +4,8 @@ function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
-        <a className="navbar-brand" href="/">
-          DocChat
+        <a className="navbar-brand" href="/react/">
+          RAGUI
         </a>
         <button
           className="navbar-toggler"
@@ -21,33 +21,33 @@ function Navbar() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="/">
-                Chat
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/temp">
+              <a className="nav-link" href="/react/temp">
                 Temperature
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/upload">
+              <a className="nav-link" href="/react/tupload">
                 Upload
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/reload">
+              <a className="nav-link" href="/react/reload">
                 Reload
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/clear">
+              <a className="nav-link" href="/react/clear">
                 Clear history
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/model">
+              <a className="nav-link" href="/react/model">
                 Set model
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/react/settings">
+                Settings
               </a>
             </li>
           </ul>

@@ -1,75 +1,122 @@
-import React from 'react';
-import { Component } from 'react';
-import AsyncSelect from 'react-select/async'
-import Navbar from '../components/Navbar';
-import myConfig from '../components/config';
-class Models extends Component {
+import React, { useState, useContext, useEffect } from "react";
+import { SettingsContext } from "../components/SettingsContext";
+import AsyncSelect from "react-select/async";
+import Navbar from "../components/Navbar";
 
-  state = {
-    inputValue: '',
-    selectedOption: '',
-    cleareble: false,
-    data: 'Select value from dropdown',
-    models: []
-  }    
+function Models() {
+  const { settings } = useContext(SettingsContext);
 
-  invoke_model(model) {
-    this.setState({ data: 'Setting model' })
-    async function fetchData(model) {
-      let api = `${myConfig.API}/prompt/${myConfig.Project}/model?model=`+model
-      const response = await fetch(`${api}`);
-      return await response.text()
+  const [state, setState] = useState({
+    inputValue: "",
+    selectedOption: null, // Initially null until options are loaded
+    data: "Select value from dropdown",
+    options: [],
+  });
+
+  // Update selectedOption when settings.ModelText changes
+  useEffect(() => {
+    if (settings.ModelText) {
+      setState((prevState) => ({
+        ...prevState,
+        selectedOption: { value: settings.ModelText, label: settings.ModelText },
+      }));
     }
-    fetchData(model).then(data => { this.setState({ data: data}) });
-  }
+  }, [settings.ModelText]);
 
-  componentDidMount() {
-    let api = `${myConfig.API}/prompt/${myConfig.Project}/modelnames`
+  // Fetch models once when the component mounts
+  useEffect(() => {
+    const api = `${settings.PROD_API}/prompt/${settings.Project}/modelnames`;
 
-    fetch(`${api}`)
-      .then(res => res.json())
-        .then(data => 
-          {
-            this.setState({
-                models: data
-            })
+    if (state.options.length === 0) {
+      fetch(api)
+        .then((res) => res.json())
+        .then((data) => {
+          const options = data.map((model) => ({
+            value: model,
+            label: model,
+          }));
+          setState((prevState) => ({
+            ...prevState,
+            options,
+          }));
         })
-   }
+        .catch((error) => console.error("Error fetching models:", error));
+    }
+  }, [settings.PROD_API, settings.Project, state.options.length]);
 
-  handleChange = (selectedOption) => {
-    this.setState({ selectedOption: selectedOption.value });
-    this.invoke_model(selectedOption.value)
-  }
-  
-  render() {
-    //let options = this.state.cars.map(function (car) {
-    //  return { value: car.make, label: car.make, image: car.link };
-    //})
-    let options = this.state.models.map(function (model) { 
-      return { value: model, label: model };  
-    });
-    
-    return (
-      <div>
-      <Navbar />
-      <AsyncSelect
-          className='select-search'
-          value={this.state.selectedOption}
-          onChange={this.handleChange}
-          cleareble={this.state.cleareble}
-          defaultOptions={options}
-          formatOptionLabel={model => (
-             <div className="car-option">
-               <span>{model.label}</span>
-             </div>
-          )} />
-        <div className="container pt-5">
-          <div>{this.state.data.toString()}</div>
-        </div>
-      </div>
-    );
-   }
+  const handleChange = (selectedOption) => {
+    setState((prevState) => ({
+      ...prevState,
+      selectedOption,
+    }));
   };
 
+  const invoke_model = (e) => {
+    e.preventDefault();
+
+    if (!state.selectedOption) {
+      setState((prevState) => ({
+        ...prevState,
+        data: "Please select a model first!",
+      }));
+      return;
+    }
+
+    setState((prevState) => ({
+      ...prevState,
+      data: "Setting model...",
+    }));
+
+    const api = `${settings.PROD_API}/prompt/${settings.Project}/model?model=${state.selectedOption.value}`;
+
+    fetch(api)
+      .then((response) => response.text())
+      .then((data) => {
+        setState((prevState) => ({
+          ...prevState,
+          data,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error setting model:", error);
+        setState((prevState) => ({
+          ...prevState,
+          data: "Failed to set model",
+        }));
+      });
+  };
+
+  return (
+    <div>
+      <Navbar />
+      <div className="container pt-5">
+        <AsyncSelect
+          className="select-search"
+          value={state.selectedOption}
+          onChange={handleChange}
+          isClearable={true}
+          defaultOptions={state.options}
+          formatOptionLabel={(model) => (
+            <div className="model-option">
+              <span>{model.label}</span>
+            </div>
+          )}
+        />
+      </div>
+      <div className="container pt-5">
+        <form onSubmit={invoke_model}>
+          <div className="form-group">
+            <button className="btn btn-primary" type="submit">
+              Set model
+            </button>
+          </div>
+          <div className="container pt-5">
+            <div>{state.data}</div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default Models;

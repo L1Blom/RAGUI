@@ -1,15 +1,16 @@
-import React from "react";
-import { useState } from "react";
 import Navbar from "../components/Navbar";
-import myConfig from "../components/config";
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { SettingsContext } from "../components/SettingsContext";
 
 function Reload() {
+  const { settings }  = useContext(SettingsContext);
   const [data, setData] = useState(null);
+
   const invoke_reload = (e) => {
     e.preventDefault();
     setData("Loading...")
     async function fetchData() {
-      let api = `${myConfig.API}/prompt/${myConfig.Project}/reload`
+      let api = `${settings.PROD_API}/prompt/${settings.Project}/reload`
       const response = await fetch(`${api}`);
       const data = await response.text();
       const results = data;
