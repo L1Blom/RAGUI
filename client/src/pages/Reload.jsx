@@ -1,5 +1,4 @@
-import Navbar from "../components/Navbar";
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 
 function Reload() {
@@ -21,7 +20,6 @@ function Reload() {
   
   return (
     <div>
-      <Navbar />
       <div className="container pt-5">
         <form onSubmit={invoke_reload}>
           <div className="form-group">

@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 import AsyncSelect from "react-select/async";
-import Navbar from "../components/Navbar";
 
 function Models() {
-  const { settings } = useContext(SettingsContext);
+  const { settings, updateSettings } = useContext(SettingsContext);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [state, setState] = useState({
     inputValue: "",
@@ -12,6 +12,10 @@ function Models() {
     data: "Select value from dropdown",
     options: [],
   });
+
+  const isDisabled = isLoading ||
+    state.selectedOption === null? false: state.selectedOption.value === settings.ModelText;
+  //console.log(isDisabled, isLoading, state.selectedOption.value, settings.ModelText);
 
   // Update selectedOption when settings.ModelText changes
   useEffect(() => {
@@ -21,7 +25,7 @@ function Models() {
         selectedOption: { value: settings.ModelText, label: settings.ModelText },
       }));
     }
-  }, [settings.ModelText]);
+  }, []);
 
   // Fetch models once when the component mounts
   useEffect(() => {
@@ -51,6 +55,7 @@ function Models() {
     }));
   };
 
+
   const invoke_model = (e) => {
     e.preventDefault();
 
@@ -62,6 +67,8 @@ function Models() {
       return;
     }
 
+    setIsLoading(true); // Disable button during API call
+
     setState((prevState) => ({
       ...prevState,
       data: "Setting model...",
@@ -69,27 +76,40 @@ function Models() {
 
     const api = `${settings.PROD_API}/prompt/${settings.Project}/model?model=${state.selectedOption.value}`;
 
-    fetch(api)
-      .then((response) => response.text())
-      .then((data) => {
-        setState((prevState) => ({
-          ...prevState,
-          data,
-        }));
-      })
-      .catch((error) => {
+    try {
+      fetch(api)
+        .then((response) => response.text())
+        .then((data) => {
+          setState((prevState) => ({
+            ...prevState,
+            data,
+          }));
+          updateSettings({ key: "ModelText", value: state.selectedOption.value });
+        })
+        .catch((error) => {
+          console.error("Error setting model:", error);
+          setState((prevState) => ({
+            ...prevState,
+            data: "Failed to set model",
+          }));
+        });
+      } catch (error) {
         console.error("Error setting model:", error);
-        setState((prevState) => ({
-          ...prevState,
-          data: "Failed to set model",
-        }));
-      });
+        setState("Failed to set model. Please try again.");
+      } finally {
+        setIsLoading(false); // Re-enable the button after API call completes
+      }  
   };
 
   return (
-    <div>
-      <Navbar />
-      <div className="container pt-5">
+    <tr className="settings_row">
+      <td>
+        LLM
+      </td>
+      <td>
+        {settings.ModelText}
+      </td>
+      <td>
         <AsyncSelect
           className="select-search"
           value={state.selectedOption}
@@ -102,20 +122,14 @@ function Models() {
             </div>
           )}
         />
-      </div>
-      <div className="container pt-5">
+        <div>{state.data}</div>
         <form onSubmit={invoke_model}>
-          <div className="form-group">
-            <button className="btn btn-primary" type="submit">
-              Set model
-            </button>
-          </div>
-          <div className="container pt-5">
-            <div>{state.data}</div>
-          </div>
+          <button className="btn btn-primary" type="submit" disabled={isDisabled}>
+            Set model
+          </button>
         </form>
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }
 

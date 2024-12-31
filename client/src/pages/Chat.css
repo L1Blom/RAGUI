@@ -8,6 +8,9 @@
     --chat-scroll-color: #7a7676;
 }
 
+.settings_row {
+    border-bottom: 1px solid #ddd;
+  }
 .bubble-container {
     width: 100%;
     position: static;
@@ -116,6 +119,7 @@
 
 .chat-input {
     border-top: solid 1px  #84a39f;
+    border-bottom: solid 1px  #84a39f;
 }
 
 input#chat-input {

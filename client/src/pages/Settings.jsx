@@ -1,40 +1,40 @@
 import React, { useContext } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 import Navbar from "../components/Navbar";
+import Models from "./Models";
+import Temperature from "./Temperature";
+import Upload from "./Upload";
+import Score from "../components/Score";
+import Similar from "../components/Similar";
 
 function Settings() {
 
   const { settings } = useContext(SettingsContext);
-  console.log(settings)
+
   return (
     <div>
-      <Navbar/>
+      <Navbar />
       <div className="container pt-5">
-        <table>
+        <table border={1}>
           <thead>
-            <tr><th width="40%">Topic</th><th>Value</th></tr>
+            <tr className="settings_row"><th>Topic</th><th>Value</th><th>Set</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Project</td><td>{settings.Project}</td>
+            <tr className="settings_row">
+              <td>Project</td><td>{settings.Project}</td><td></td>
             </tr>
-            <tr>
-              <td>Provider</td><td>{settings.Provider}</td>
+            <tr className="settings_row">
+              <td>Provider</td><td>{settings.Provider}</td><td></td>
             </tr>
-            <tr>
-              <td>LLM</td><td>{settings.ModelText}</td>
-            </tr>
-            <tr>
-              <td>Temperature</td><td>{settings.Temperature}</td>
-            </tr>
-            <tr>
-              <td>Max. results</td><td>{settings.Similar}</td>
-            </tr>
-            <tr>
-              <td>Max. score</td><td>{settings.Score}</td>
-            </tr>
-            <tr>
+            <Models />
+            <Temperature />
+            <Similar />
+            <Score />
+            <tr className="settings_row">
               <td>Server API</td><td>{settings.PROD_API}</td>
+            </tr>
+            <tr className="settings_row">
+              <td>Upload files</td><td></td><Upload />
             </tr>
           </tbody>
         </table>

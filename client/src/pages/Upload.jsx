@@ -1,5 +1,4 @@
-import Navbar from "../components/Navbar";
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useContext} from "react";
 import { SettingsContext } from "../components/SettingsContext";
 
 function Upload() {
@@ -30,9 +29,7 @@ function Upload() {
   };
 
   return (
-    <div>
-      <Navbar />
-      <div className="container pt-5">
+    <td>
         <form encType="multipart/form-data" onSubmit={handleFileSubmit}>
           <div className="mb-3">
             <label htmlFor="formFile" className="form-label">
@@ -45,14 +42,11 @@ function Upload() {
               id="formFile"
             />
           </div>
-          <div className="form-group">
             <button className="btn btn-primary" type="submit">
               Submit
             </button>
-          </div>
         </form>
-      </div>
-    </div>
+    </td>
   );
 }
 

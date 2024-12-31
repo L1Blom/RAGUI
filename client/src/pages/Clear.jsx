@@ -1,13 +1,10 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 import Navbar from "../components/Navbar";
 
 function Clear() {
   const { settings }  = useContext(SettingsContext);
   const [data, setData] = useState(null);
-  useEffect(() => {
-  }, [settings]);
-
 
   const invoke_clear = (e) => {
     e.preventDefault();

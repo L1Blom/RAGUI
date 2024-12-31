@@ -1,15 +1,15 @@
 import React from "react";
-import myConfig from "./config";
 import ReactMarkdown from "react-markdown";
-import { useState} from "react";
-
+import { useState, useContext } from "react";
+import { SettingsContext } from "./SettingsContext";  
 
 function Message(props) {
+  const { settings } = useContext(SettingsContext);
   let dataRoll = props.position === "left_bubble" ? "ASSISTANT" : "USER";
   let thisClass = `chat-bubble ${props.position}`;
   let data = props.data
   let myTime = new Date().getTime()
-  let api = myConfig.PROD_API + '/prompt/' + myConfig.Project
+  let api = settings.PROD_API + '/prompt/' + settings.Project
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   const toggleContentExpansion = () => {
     setIsContentExpanded(!isContentExpanded);
@@ -17,7 +17,7 @@ function Message(props) {
 
   const rows = () => {
     if (data != null) {
-      let output = data.filter(row => row.score >= myConfig.Score)
+      let output = data.filter(row => row.score >= settings.Score)
         .map(({ metadata, page_content, score }, index) => {
           let href = api + '/file?file=' + metadata.source
           let tpage = ''

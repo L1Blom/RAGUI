@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar";
 import Message from "../components/Message";
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useContext} from "react";
 import { SettingsContext } from "../components/SettingsContext";
 
 import "./Chat.css";
@@ -103,6 +103,7 @@ function Chat() {
     <div>
       <div className="pageFrame">
         <Navbar />
+        <div className="small bg-light">Project: <b>{settings.Project}</b> - Model: <b>{settings.ModelText}</b> - Temperature: <b>{ settings.Temperature}</b> - Similar: <b>{settings.Similar}</b> - Score: <b>{ settings.Score}</b></div>
         <div className="start-chat">
           <div className="assistant-chat-body">
             {chatMessages.map((chatMessage, key) => (
