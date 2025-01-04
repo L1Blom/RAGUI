@@ -25,7 +25,7 @@ function Models() {
         selectedOption: { value: settings.ModelText, label: settings.ModelText },
       }));
     }
-  }, []);
+  }, [settings.ModelText]);
 
   // Fetch models once when the component mounts
   useEffect(() => {

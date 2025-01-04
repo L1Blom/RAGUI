@@ -14,7 +14,7 @@ const Temperature = () => {
   useEffect(() => {
     setValue(settings.Temperature || 0.0);
     setData(`Temperature set to ${settings.Temperature || 0.0}`);
-  }, []);
+  }, [settings.Temperature]);
 
   const handleChange = (event) => {
     const newValue = parseFloat(event.target.value);
@@ -25,7 +25,6 @@ const Temperature = () => {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      console.log("Debounced value:", newValue); // Optional: debug logging
     }, 200);
   };
 

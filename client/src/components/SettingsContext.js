@@ -3,54 +3,63 @@ import React, { createContext, useState, useEffect } from "react";
 export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
+
     const initialSettings = {
-        DEV_API: 'http://192.168.2.22:5000',
         PROD_API: 'https://home.lblom.nl',
         Project: 'centric',
         Provider: '',
         Similar: 10,
         Score: 0.2,
+        NoChunks: 0,
+        ChunkSize: 0,
+        ChunkOverlap: 0,
         Temperature: 0.0,
         ModelText: "",
         State: 'initial'
     }
     const savedSettings = JSON.parse(localStorage.getItem("settings"));
-    console.log("Saved settings:", savedSettings); // Log the saved settings
     const [settings, setSettings] =
-        useState(savedSettings === undefined ? initialSettings: savedSettings);    
-    
+        useState(savedSettings === null ? initialSettings : savedSettings);
+
     useEffect(() => {
         // Fetch initial settings from an API
+        const settingsTypes = {
+            default: 'string',
+            Similar: 'number',
+            Score: 'float',
+            Temperature: 'float',
+            NoChunks: 'number',
+            ChunkSize: 'number',
+            ChunkOverlap: 'number'
+        }
+
         const invoke_globals = () => {
             async function fetchData() {
-                let api = `${settings.PROD_API}/prompt/${settings.Project}/globals`
-                const response = await fetch(
-                    `${api}`
-                );
+                let api = `${settings.PROD_API}/prompt/${settings.Project}/globals`;
+                const response = await fetch(api);
                 return response.json();
             }
+
             fetchData().then(result => {
-                Object.entries(result).map(([key, value]) => {
-                    if (key in settings) {
-                        if (key === 'Temperature' || key === 'Score') {
-                            settings[key] = parseFloat(value);
-                        } else {
-                            if (key === 'Similar') {
-                                settings[key] = Number(value);
-                            } else {
-                                settings[key] = value
+                const updatedSettings = { ...settings };
+                Object.entries(result).forEach(([key, value]) => {
+                    if (key in updatedSettings) {
+                        if (key in settingsTypes) {
+                            if (settingsTypes[key] === 'number') {
+                                value = Number(value);
+                            } else if (settingsTypes[key] === 'float') {
+                                value = parseFloat(value);
                             }
                         }
+                        updatedSettings[key] = value;
                     }
-                    return settings;
                 });
-                settings['Provider'] = result['USE_LLM'];
-                settings['State'] = 'initialized';
-                setSettings(settings)
+                updatedSettings['Provider'] = result['USE_LLM'];
+                updatedSettings['State'] = 'initialized';
+                setSettings(updatedSettings);
             });
         };
         if (settings.State === 'initial') {
-            console.log("state",settings.State)
             invoke_globals();
         }
     }, [settings]);
@@ -63,15 +72,15 @@ export const SettingsProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("settings", JSON.stringify(settings));
-        console.log("Settings updated:", settings); // Log the updated settings
+        if (settings.State === 'initialized') {
+            localStorage.setItem("settings", JSON.stringify(settings));
+        }
     }, [settings]);
 
 
     // Function to update settings via an API
     const updateSettings = (newSettings) => {
         setSettings((prevSettings) => {
-            console.log("Updating settings:", newSettings); // Log the updated settings  
             const updatedSettings = {
                 ...prevSettings, // Keep the existing settings
                 [newSettings.key]: newSettings.value, // Update the specific key with the new value

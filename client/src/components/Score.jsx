@@ -14,7 +14,6 @@ function Score() {
             clearTimeout(timeoutRef.current);
         }
         timeoutRef.current = setTimeout(() => {
-            console.log("Debounced value:", newValue); // Optional: debug logging 
         }, 200);
     };
 

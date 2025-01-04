@@ -6,6 +6,8 @@ import Temperature from "./Temperature";
 import Upload from "./Upload";
 import Score from "../components/Score";
 import Similar from "../components/Similar";
+import Clear from "./Clear";
+import Reload from "./Reload";
 
 function Settings() {
 
@@ -26,19 +28,19 @@ function Settings() {
             <tr className="settings_row">
               <td>Provider</td><td>{settings.Provider}</td><td></td>
             </tr>
-            <Models />
-            <Temperature />
-            <Similar />
-            <Score />
             <tr className="settings_row">
               <td>Server API</td><td>{settings.PROD_API}</td>
             </tr>
-            <tr className="settings_row">
-              <td>Upload files</td><td></td><Upload />
-            </tr>
+            <Similar />
+            <Score />
+            <Clear />
+            <Reload />
+            <Models />
+            <Temperature />
+            <Upload />
           </tbody>
         </table>
-      </div>
+        </div>
     </div>
   );
 }

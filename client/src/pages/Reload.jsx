@@ -3,7 +3,7 @@ import { SettingsContext } from "../components/SettingsContext";
 
 function Reload() {
   const { settings }  = useContext(SettingsContext);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState("Use button to reload the documents");
 
   const invoke_reload = (e) => {
     e.preventDefault();
@@ -19,18 +19,19 @@ function Reload() {
   };
   
   return (
-    <div>
-      <div className="container pt-5">
+    <tr className="settings_row">
+      <td></td><td></td>
+      <td>
         <form onSubmit={invoke_reload}>
           <div className="form-group">
             <button className="btn btn-primary" type="submit">Reload</button>
           </div>
-          <div className="container pt-5">
+          <div>
             <div>{data}</div>
           </div>
         </form>
-      </div>
-    </div>
+        </td>
+    </tr>
   );
 }
 export default Reload;

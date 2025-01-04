@@ -103,7 +103,18 @@ function Chat() {
     <div>
       <div className="pageFrame">
         <Navbar />
-        <div className="small bg-light">Project: <b>{settings.Project}</b> - Model: <b>{settings.ModelText}</b> - Temperature: <b>{ settings.Temperature}</b> - Similar: <b>{settings.Similar}</b> - Score: <b>{ settings.Score}</b></div>
+        <div className="small bg-light">
+          Project: <b>{settings.Project} </b>
+          - Model: <b>{settings.ModelText} </b>
+          - Temperature: <b>{settings.Temperature} </b>
+          - Similar: <b>{settings.Similar} </b>
+          - Score: <b>{settings.Score}</b>
+        </div>
+        <div className="small bg-light">
+          Chunk size: <b>{settings.ChunkSize} </b>
+          - Chunk overlap: <b>{settings.ChunkOverlap} </b>
+          - # Chunks: <b>{settings.NoChunks}</b>
+        </div>
         <div className="start-chat">
           <div className="assistant-chat-body">
             {chatMessages.map((chatMessage, key) => (

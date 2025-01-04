@@ -3,8 +3,8 @@ import { SettingsContext } from "../components/SettingsContext";
 import Navbar from "../components/Navbar";
 
 function Clear() {
-  const { settings }  = useContext(SettingsContext);
-  const [data, setData] = useState(null);
+  const { settings } = useContext(SettingsContext);
+  const [data, setData] = useState("Use button to clear history");
 
   const invoke_clear = (e) => {
     e.preventDefault();
@@ -20,21 +20,20 @@ function Clear() {
     }
     fetchData();
   };
-  
+
   return (
-    <div>
-      <Navbar />
-      <div className="container pt-5">
-        <form onSubmit={invoke_clear}>
-          <div className="form-group">
-            <button className="btn btn-primary" type="submit">Clear history</button>
-          </div>
-          <div className="container pt-5">
-            <div>{data}</div>
-          </div>
-        </form>
-      </div>
-    </div>
+    <tr className="settings_row">
+      <td></td><td></td>
+      <td><form onSubmit={invoke_clear}>
+        <div className="form-group">
+          <button className="btn btn-primary" type="submit">Clear history</button>
+        </div>
+        <div>
+          <div>{data}</div>
+        </div>
+      </form>
+      </td>
+    </tr>
   );
 }
 export default Clear;

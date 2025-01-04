@@ -1,10 +1,10 @@
-import React, { useState, useContext} from "react";
+import React, { useState, useContext } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 
 function Upload() {
-  const { settings }  = useContext(SettingsContext);
-  const [data, setData] = useState("Choose file to upload");
-  
+  const { settings } = useContext(SettingsContext);
+  const [data, setData] = useState("Upload file");
+
   const handleFileSubmit = (e) => {
     e.preventDefault();
     setData("Uploading file...")
@@ -29,12 +29,11 @@ function Upload() {
   };
 
   return (
-    <td>
+    <tr>
+      <td>{data}</td>
+      <td>
         <form encType="multipart/form-data" onSubmit={handleFileSubmit}>
           <div className="mb-3">
-            <label htmlFor="formFile" className="form-label">
-              {data}
-            </label> 
             <input
               name="file"
               className="form-control"
@@ -42,11 +41,14 @@ function Upload() {
               id="formFile"
             />
           </div>
-            <button className="btn btn-primary" type="submit">
-              Submit
-            </button>
         </form>
-    </td>
+      </td>
+      <td>
+        <button className="btn btn-primary" type="submit">
+          Submit
+        </button>
+      </td>
+    </tr>
   );
 }
 
