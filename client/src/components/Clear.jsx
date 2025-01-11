@@ -1,6 +1,5 @@
-import React, { useState, useContext, useEffect } from "react";
-import { SettingsContext } from "../components/SettingsContext";
-import Navbar from "../components/Navbar";
+import React, { useState, useContext} from "react";
+import { SettingsContext } from "./SettingsContext";
 
 function Clear() {
   const { settings } = useContext(SettingsContext);
@@ -10,7 +9,7 @@ function Clear() {
     e.preventDefault();
     setData("Clearing history...")
     async function fetchData() {
-      let api = `${settings.PROD_API}/prompt/${settings.Project}/clear`
+      let api = `${settings.PROD_API.invoke_clear}/prompt/${settings.Project.value}/clear`
       const response = await fetch(
         `${api}`
       );
@@ -26,7 +25,7 @@ function Clear() {
       <td></td><td></td>
       <td><form onSubmit={invoke_clear}>
         <div className="form-group">
-          <button className="btn btn-primary" type="submit">Clear history</button>
+          <button className="btn btn-primary btn-sm" type="submit">Clear history</button>
         </div>
         <div>
           <div>{data}</div>

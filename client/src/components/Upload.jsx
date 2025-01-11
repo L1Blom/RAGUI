@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { SettingsContext } from "../components/SettingsContext";
+import { SettingsContext } from "./SettingsContext";
 
 function Upload() {
   const { settings } = useContext(SettingsContext);
@@ -9,7 +9,7 @@ function Upload() {
     e.preventDefault();
     setData("Uploading file...")
     const formData = new FormData(e.target);
-    let api = `${settings.PROD_API}/prompt/${settings.Project}/upload`
+    let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/upload`
 
     // Send formData to your server using an HTTP request (e.g., axios or fetch).
     // Replace 'YOUR_UPLOAD_API_ENDPOINT' with your actual API endpoint.
@@ -30,21 +30,19 @@ function Upload() {
 
   return (
     <tr>
-      <td>{data}</td>
+      <td className="upload-status">{data}</td>
       <td>
-        <form encType="multipart/form-data" onSubmit={handleFileSubmit}>
-          <div className="mb-3">
-            <input
-              name="file"
-              className="form-control"
-              type="file"
-              id="formFile"
-            />
-          </div>
+        <form id="uploadForm" encType="multipart/form-data" onSubmit={handleFileSubmit}>
+          <input
+            name="file"
+            className="form-control"
+            type="file"
+            id="formFile"
+          />
         </form>
       </td>
       <td>
-        <button className="btn btn-primary" type="submit">
+        <button className="btn btn-primary btn-sm" type="submit" form="uploadForm">
           Submit
         </button>
       </td>

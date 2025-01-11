@@ -5,16 +5,36 @@ export const SettingsContext = createContext();
 export const SettingsProvider = ({ children }) => {
 
     const initialSettings = {
-        PROD_API: 'https://home.lblom.nl',
-        Project: 'centric',
-        Provider: '',
-        Similar: 10,
-        Score: 0.2,
-        NoChunks: 0,
-        ChunkSize: 0,
-        ChunkOverlap: 0,
-        Temperature: 0.0,
-        ModelText: "",
+        PROD_API: {
+            value: 'https://home.lblom.nl', type: 'string', prio: 'server'
+        },
+        Project: {
+            value: 'centric', type: 'string', prio: 'server'
+        },
+        Provider: {
+            value: '', type: 'string', prio: 'server'
+        },
+        Similar: {
+            value: 0.2, type: 'float', prio: 'client'
+        },
+        Score: {
+            value: 0.2, type: 'float', prio: 'client'
+        },  
+        NoChunks: {
+            value: 0, type: 'number', prio: 'server'
+        },
+        ChunkSize: {
+            value: 100, type: 'number', prio: 'server'
+        },
+        ChunkOverlap: {
+            value: 20, type: 'number', prio: 'server'
+        },
+        Temperature: {
+            value: 0.0, type: 'float', prio: 'server'
+        },
+        ModelText: {
+            value: '', type: 'string', prio: 'server'
+        },
         State: 'initial'
     }
     const savedSettings = JSON.parse(localStorage.getItem("settings"));
@@ -23,19 +43,9 @@ export const SettingsProvider = ({ children }) => {
 
     useEffect(() => {
         // Fetch initial settings from an API
-        const settingsTypes = {
-            default: 'string',
-            Similar: 'number',
-            Score: 'float',
-            Temperature: 'float',
-            NoChunks: 'number',
-            ChunkSize: 'number',
-            ChunkOverlap: 'number'
-        }
-
         const invoke_globals = () => {
             async function fetchData() {
-                let api = `${settings.PROD_API}/prompt/${settings.Project}/globals`;
+                let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
                 const response = await fetch(api);
                 return response.json();
             }
@@ -44,17 +54,18 @@ export const SettingsProvider = ({ children }) => {
                 const updatedSettings = { ...settings };
                 Object.entries(result).forEach(([key, value]) => {
                     if (key in updatedSettings) {
-                        if (key in settingsTypes) {
-                            if (settingsTypes[key] === 'number') {
-                                value = Number(value);
-                            } else if (settingsTypes[key] === 'float') {
-                                value = parseFloat(value);
+                        if (key !== 'State') {
+                            if (settings[key].prio === 'server') {
+                                if (updatedSettings[key].type === 'number') {
+                                    value = Number(value);
+                                } else if (updatedSettings[key].type === 'float') {
+                                    value = parseFloat(value);
+                                }
+                                updatedSettings[key].value = value;
                             }
                         }
-                        updatedSettings[key] = value;
                     }
                 });
-                updatedSettings['Provider'] = result['USE_LLM'];
                 updatedSettings['State'] = 'initialized';
                 setSettings(updatedSettings);
             });
@@ -65,26 +76,21 @@ export const SettingsProvider = ({ children }) => {
     }, [settings]);
 
     useEffect(() => {
-        const savedSettings = JSON.parse(localStorage.getItem("settings"));
-        if (savedSettings) {
-            setSettings(savedSettings);
-        }
-    }, []);
-
-    useEffect(() => {
         if (settings.State === 'initialized') {
             localStorage.setItem("settings", JSON.stringify(settings));
         }
     }, [settings]);
 
-
     // Function to update settings via an API
     const updateSettings = (newSettings) => {
         setSettings((prevSettings) => {
             const updatedSettings = {
-                ...prevSettings, // Keep the existing settings
-                [newSettings.key]: newSettings.value, // Update the specific key with the new value
-            };
+                ...prevSettings
+            }
+            if (updatedSettings[newSettings.key]) {
+                updatedSettings[newSettings.key].value = newSettings.value;
+                
+            }
             return updatedSettings;
         });
     };

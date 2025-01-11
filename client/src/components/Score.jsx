@@ -3,7 +3,7 @@ import { SettingsContext } from "../components/SettingsContext";
 
 function Score() {
     const { settings, updateSettings } = useContext(SettingsContext);
-    const [value, setValue] = useState(settings.Score);
+    const [value, setValue] = useState(settings.Score.value);
     const timeoutRef = useRef(null);
 
     const handleChange = (event) => {
@@ -21,25 +21,25 @@ function Score() {
         updateSettings({ key: "Score", value: value });
     }, [value]);
 
-    return (<tr className="settings_row">
-        <td>
-            Min. score
-        </td>
-        <td>
-            {value.toFixed(1)}
-        </td>
-        <td>
-            <input
-                onChange={handleChange}
-                value={value}
-                step="0.1"
-                type="range"
-                min="0.0"
-                max="1.0"
-            />
-            {value.toFixed(1)} {/* Display the slider value */}
-        </td>
-    </tr>
+    return (
+        <tr className="settings_row">
+            <td>
+                Min. score
+            </td>
+            <td>
+                {value.toFixed(1)}
+            </td>
+            <td>
+                <input
+                    onChange={handleChange}
+                    value={value}
+                    step="0.1"
+                    type="range"
+                    min="0.0"
+                    max="1.0"
+                />
+            </td>
+        </tr>
     );
 }
 export default Score;

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { SettingsContext } from "../components/SettingsContext";
+import { SettingsContext } from "./SettingsContext";
 
 function Reload() {
   const { settings }  = useContext(SettingsContext);
@@ -9,7 +9,7 @@ function Reload() {
     e.preventDefault();
     setData("Loading...")
     async function fetchData() {
-      let api = `${settings.PROD_API}/prompt/${settings.Project}/reload`
+      let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/reload`
       const response = await fetch(`${api}`);
       const data = await response.text();
       const results = data;
@@ -24,7 +24,7 @@ function Reload() {
       <td>
         <form onSubmit={invoke_reload}>
           <div className="form-group">
-            <button className="btn btn-primary" type="submit">Reload</button>
+            <button className="btn btn-primary btn-sm" type="submit">Reload</button>
           </div>
           <div>
             <div>{data}</div>

@@ -9,7 +9,7 @@ function Message(props) {
   let thisClass = `chat-bubble ${props.position}`;
   let data = props.data
   let myTime = new Date().getTime()
-  let api = settings.PROD_API + '/prompt/' + settings.Project
+  let api = settings.PROD_API.value + '/prompt/' + settings.Project.value
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   const toggleContentExpansion = () => {
     setIsContentExpanded(!isContentExpanded);
@@ -17,7 +17,7 @@ function Message(props) {
 
   const rows = () => {
     if (data != null) {
-      let output = data.filter(row => row.score >= settings.Score)
+      let output = data.filter(row => row.score >= settings.Score.value)
         .map(({ metadata, page_content, score }, index) => {
           let href = api + '/file?file=' + metadata.source
           let tpage = ''

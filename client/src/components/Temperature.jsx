@@ -1,4 +1,4 @@
-import { SettingsContext } from "../components/SettingsContext";
+import { SettingsContext } from "./SettingsContext";
 import React, { useState, useRef, useContext, useEffect } from "react";
 
 const Temperature = () => {
@@ -6,15 +6,15 @@ const Temperature = () => {
   const timeoutRef = useRef(null);
 
   // State variables
-  const [value, setValue] = useState(settings.Temperature || 0.0);
-  const [data, setData] = useState(`Temperature set to ${settings.Temperature || 0.0}`);
+  const [value, setValue] = useState(settings.Temperature.value || 0.0);
+  const [data, setData] = useState(`Temperature set to ${settings.Temperature.value || 0.0}`);
   const [isLoading, setIsLoading] = useState(false);
 
   // Synchronize `value` and `data` with `settings.Temperature`
   useEffect(() => {
-    setValue(settings.Temperature || 0.0);
-    setData(`Temperature set to ${settings.Temperature || 0.0}`);
-  }, [settings.Temperature]);
+    setValue(settings.Temperature.value || 0.0);
+    setData(`Temperature set to ${settings.Temperature.value.value || 0.0}`);
+  }, [settings.Temperature.value]);
 
   const handleChange = (event) => {
     const newValue = parseFloat(event.target.value);
@@ -35,7 +35,7 @@ const Temperature = () => {
     setData(`Setting temperature to ${value.toFixed(1)}...`);
 
     try {
-      const response = await fetch(`${settings.PROD_API}/prompt/${settings.Project}/temp?temp=${value.toFixed(1)}`);
+      const response = await fetch(`${settings.PROD_API.value}/prompt/${settings.Project.value}/temp?temp=${value.toFixed(1)}`);
       const result = await response.text();
       setData(result); // Update the data with the server's response
       updateSettings({ key: "Temperature", value: value }); // Update the context
@@ -47,7 +47,7 @@ const Temperature = () => {
     }
   };
 
-  const isDisabled = isLoading || parseFloat(value.toFixed(1)) === parseFloat((settings.Temperature || 0.0).toFixed(1));
+  const isDisabled = isLoading || parseFloat(value.toFixed(1)) === parseFloat((settings.Temperature.value || 0.0).toFixed(1));
 
   return (
     <tr className="settings_row">
@@ -68,9 +68,8 @@ const Temperature = () => {
             min="0.0"
             max="2.0"
           />
-          {value.toFixed(1)} {/* Display the slider value */}
           <div>{data}</div>
-          <button className="btn btn-primary" type="submit" disabled={isDisabled}>
+          <button className="btn btn-primary btn-sm" type="submit" disabled={isDisabled}>
               {isLoading ? "Setting..." : "Set"}
             </button>
         </form>

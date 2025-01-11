@@ -36,7 +36,7 @@ function Chat() {
     }
     prompt_input.value = "";
 
-    let api = `${settings.PROD_API}/prompt/${settings.Project}`
+    let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}`
     if (mode === 'search') {
       api = `${api}/search`
     }
@@ -59,9 +59,8 @@ function Chat() {
       }
     }
     if (mode === 'search') {
-      postData.body = postData.body + "&similar=" + settings.Similar
+      postData.body = postData.body + "&similar=" + settings.Similar.value
     }
-
     fetch(api, postData)
       .then((response) => {
         if (mode === 'prompt') {
@@ -104,16 +103,16 @@ function Chat() {
       <div className="pageFrame">
         <Navbar />
         <div className="small bg-light">
-          Project: <b>{settings.Project} </b>
-          - Model: <b>{settings.ModelText} </b>
-          - Temperature: <b>{settings.Temperature} </b>
-          - Similar: <b>{settings.Similar} </b>
-          - Score: <b>{settings.Score}</b>
+          Project: <b>{settings.Project.value} </b>
+          - Model: <b>{settings.ModelText.value} </b>
+          - Temperature: <b>{settings.Temperature.value} </b>
+          - Similar: <b>{settings.Similar.value} </b>
+          - Score: <b>{settings.Score.value}</b>
         </div>
         <div className="small bg-light">
-          Chunk size: <b>{settings.ChunkSize} </b>
-          - Chunk overlap: <b>{settings.ChunkOverlap} </b>
-          - # Chunks: <b>{settings.NoChunks}</b>
+          Chunk size: <b>{settings.ChunkSize.value} </b>
+          - Chunk overlap: <b>{settings.ChunkOverlap.value} </b>
+          - # Chunks: <b>{settings.NoChunks.value}</b>
         </div>
         <div className="start-chat">
           <div className="assistant-chat-body">

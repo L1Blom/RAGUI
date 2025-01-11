@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 import Navbar from "../components/Navbar";
-import Upload from "./Upload";
+import Upload from "../components/Upload";
 
 const Directory = () => {
     const [files, setFiles] = useState({});
@@ -9,7 +9,7 @@ const Directory = () => {
 
     // Fetch models once when the component mounts
     useEffect(() => {
-        const api = `${settings.PROD_API}/prompt/${settings.Project}/context` +
+        const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/context` +
             '?file=&action=list';
 
         fetch(api).then((res) => res.json()).then((data) => {
@@ -30,17 +30,15 @@ const Directory = () => {
                     </thead>
                     <tbody>
                         {files.items.map((item, index) => {
-                            return (
-                                <tr key={index}>
+                            return (<tr key={index}>
                                     <td>{index+1}</td>
                                     <td>{item.name}</td>
                                     <td>
-                                        <a className="btn btn-primary" target="RAGUI" href={settings.PROD_API + '/prompt/' + settings.Project + '/file?file=data/' + settings.Project + '/' + item.name}>View</a>
-                                        &nbsp;&nbsp;
-                                        <a className="btn btn-primary" href={settings.PROD_API + '/prompt/' + settings.Project + '/context?file='+item.name+'&action=delete'}>Delete</a>
+                                        <a className="btn btn-primary" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
+                                        &nbsp;
+                                        <a className="btn btn-primary" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file='+item.name+'&action=delete'}>Delete</a>
                                     </td>
-                                </tr>
-                            )
+                                </tr>)
                         })}
                         <Upload />
                     </tbody>

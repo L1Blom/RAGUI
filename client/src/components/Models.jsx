@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { SettingsContext } from "../components/SettingsContext";
+import { SettingsContext } from "./SettingsContext";
 import AsyncSelect from "react-select/async";
 
 function Models() {
@@ -14,22 +14,20 @@ function Models() {
   });
 
   const isDisabled = isLoading ||
-    state.selectedOption === null? false: state.selectedOption.value === settings.ModelText;
-  //console.log(isDisabled, isLoading, state.selectedOption.value, settings.ModelText);
+    state.selectedOption === null? false: state.selectedOption.value === settings.ModelText.value;
 
-  // Update selectedOption when settings.ModelText changes
   useEffect(() => {
-    if (settings.ModelText) {
+    if (settings.ModelText.value) {
       setState((prevState) => ({
         ...prevState,
-        selectedOption: { value: settings.ModelText, label: settings.ModelText },
+        selectedOption: { value: settings.ModelText.value, label: settings.ModelText.value },
       }));
     }
-  }, [settings.ModelText]);
+  }, [settings.ModelText.value]);
 
   // Fetch models once when the component mounts
   useEffect(() => {
-    const api = `${settings.PROD_API}/prompt/${settings.Project}/modelnames`;
+    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/modelnames`;
 
     if (state.options.length === 0) {
       fetch(api)
@@ -46,7 +44,7 @@ function Models() {
         })
         .catch((error) => console.error("Error fetching models:", error));
     }
-  }, [settings.PROD_API, settings.Project, state.options.length]);
+  }, [settings.PROD_API.value, settings.Project.value, state.options.length]);
 
   const handleChange = (selectedOption) => {
     setState((prevState) => ({
@@ -74,7 +72,7 @@ function Models() {
       data: "Setting model...",
     }));
 
-    const api = `${settings.PROD_API}/prompt/${settings.Project}/model?model=${state.selectedOption.value}`;
+    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/model?model=${state.selectedOption.value}`;
 
     try {
       fetch(api)
@@ -107,7 +105,7 @@ function Models() {
         LLM
       </td>
       <td>
-        {settings.ModelText}
+        {settings.ModelText.value}
       </td>
       <td>
         <AsyncSelect
@@ -124,7 +122,7 @@ function Models() {
         />
         <div>{state.data}</div>
         <form onSubmit={invoke_model}>
-          <button className="btn btn-primary" type="submit" disabled={isDisabled}>
+          <button className="btn btn-primary btn-sm" type="submit" disabled={isDisabled}>
             Set model
           </button>
         </form>
