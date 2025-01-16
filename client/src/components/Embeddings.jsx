@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { SettingsContext } from "./SettingsContext";
 import AsyncSelect from "react-select/async";
 
-function Models() {
+function Embeddings() {
   const { settings, updateSettings } = useContext(SettingsContext);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,20 +14,20 @@ function Models() {
   });
 
   const isDisabled = isLoading ||
-    state.selectedOption === null ? false : state.selectedOption.value === settings.ModelText.value;
+    state.selectedOption === null ? false : state.selectedOption.value === settings.Embedding.value;
 
   useEffect(() => {
-    if (settings.ModelText.value) {
+    if (settings.Embedding.value) {
       setState((prevState) => ({
         ...prevState,
-        selectedOption: { value: settings.ModelText.value, label: settings.ModelText.value },
+        selectedOption: { value: settings.Embedding.value, label: settings.Embedding.value },
       }));
     }
-  }, [settings.ModelText.value]);
+  }, [settings.Embedding.value]);
 
   // Fetch models once when the component mounts
   useEffect(() => {
-    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/modelnames`;
+    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/embeddingnames`;
 
     if (state.options.length === 0) {
       fetch(api)
@@ -42,7 +42,7 @@ function Models() {
             options,
           }));
         })
-        .catch((error) => console.error("Error fetching models:", error));
+        .catch((error) => console.error("Error fetching embeddings:", error));
     }
   }, [settings.PROD_API.value, settings.Project.value, state.options.length]);
 
@@ -60,7 +60,7 @@ function Models() {
     if (!state.selectedOption) {
       setState((prevState) => ({
         ...prevState,
-        data: "Please select a model first!",
+        data: "Please select an embedding first!",
       }));
       return;
     }
@@ -69,10 +69,10 @@ function Models() {
 
     setState((prevState) => ({
       ...prevState,
-      data: "Setting model...",
+      data: "Setting embedding...",
     }));
 
-    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/model?model=${state.selectedOption.value}`;
+    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/embeddings?embedding=${state.selectedOption.value}`;
 
     try {
       fetch(api)
@@ -82,18 +82,18 @@ function Models() {
             ...prevState,
             data,
           }));
-          updateSettings({ key: "ModelText", value: state.selectedOption.value });
+          updateSettings({ key: "Embedding", value: state.selectedOption.value });
         })
         .catch((error) => {
-          console.error("Error setting model:", error);
+          console.error("Error setting embedding:", error);
           setState((prevState) => ({
             ...prevState,
-            data: "Failed to set model",
+            data: "Failed to set embedding",
           }));
         });
     } catch (error) {
-      console.error("Error setting model:", error);
-      setState("Failed to set model. Please try again.");
+      console.error("Error setting embedding:", error);
+      setState("Failed to set embedding. Please try again.");
     } finally {
       setIsLoading(false); // Re-enable the button after API call completes
     }
@@ -103,10 +103,10 @@ function Models() {
     <>
       <tr>
         <td>
-          LLM
+          Embedding
         </td>
         <td>
-          {settings.ModelText.value}
+          {settings.Embedding.value}
         </td>
         <td>
           <AsyncSelect
@@ -141,4 +141,4 @@ function Models() {
   );
 }
 
-export default Models;
+export default Embeddings;

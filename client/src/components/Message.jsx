@@ -1,5 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useState, useContext } from "react";
 import { SettingsContext } from "./SettingsContext";  
 
@@ -74,8 +75,16 @@ function Message(props) {
     <div data-role={dataRoll} className="bubble-container">
       <div className={thisClass}>
         <div className="text_message">
-          {props.message.replace(/<\/?[^>]+(>|$)/g, "")}
-          {rows()}
+          {data ?
+            rows() :
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => <>{children}</>
+              }}
+            >
+              {props.message}
+            </ReactMarkdown>}
         </div>
       </div>
       <div className="clear"></div>

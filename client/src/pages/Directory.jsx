@@ -24,7 +24,7 @@ const Directory = () => {
             <div>
                 <Navbar />
                 {files.name}:
-                <table className="table table-striped">
+                <table border={1} width={'100%'}>
                     <thead>
                         <tr><th>No</th><th>Filename</th><th>Action</th></tr>
                     </thead>
@@ -32,11 +32,11 @@ const Directory = () => {
                         {files.items.map((item, index) => {
                             return (<tr key={index}>
                                     <td>{index+1}</td>
-                                    <td>{item.name}</td>
+                                    <td className="file-name">{item.name}</td>
                                     <td>
-                                        <a className="btn btn-primary" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
+                                        <a className="btn btn-primary btn-sm" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
                                         &nbsp;
-                                        <a className="btn btn-primary" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file='+item.name+'&action=delete'}>Delete</a>
+                                        <a className="btn btn-primary btn-sm" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file='+item.name+'&action=delete'}>Delete</a>
                                     </td>
                                 </tr>)
                         })}

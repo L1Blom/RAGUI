@@ -18,7 +18,7 @@ function Chunk() {
         }
         if (event.target.id === "chunk_overlap") {                          // Check if the target is the chunk overlap slider
             setValue2(newValue);                                            // Update the chunk overlap state
-        }   
+        }
 
         if (timeoutRef.current) {                                           // Clear previous timeout and set a new one for debouncing
             clearTimeout(timeoutRef.current);                               // Clear the previous timeout
@@ -52,7 +52,7 @@ function Chunk() {
             })
             .finally(() => {                                                // Finally block
                 setIsLoading(false);                                        // Re-enable the button after API call completes
-        });
+            });
     };
 
     const isDisabled = isLoading ||
@@ -101,19 +101,21 @@ function Chunk() {
             </tr>
             <tr className="settings_row">
                 <td>
+                    No chunks
                 </td>
                 <td>
+                    {settings.NoChunks.value}
                 </td>
                 <td>
-                <form onSubmit={invoke_chunk}>
+                    <form onSubmit={invoke_chunk}>
                         <button id="chunk_overlap" className="btn btn-primary btn-sm" type="submit" disabled={isDisabled}>
                             {isLoading ? "Setting..." : "Set"}
                         </button>
                     </form>
                     <div>{data}</div>
-                    </td>   
-                </tr>
-                </>
+                </td>
+            </tr>
+        </>
     );
 }
 export default Chunk;

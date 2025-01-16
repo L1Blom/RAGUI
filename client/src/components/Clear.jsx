@@ -1,9 +1,9 @@
-import React, { useState, useContext} from "react";
+import React, { useState, useContext } from "react";
 import { SettingsContext } from "./SettingsContext";
 
 function Clear() {
   const { settings } = useContext(SettingsContext);
-  const [data, setData] = useState("Use button to clear history");
+  const [data, setData] = useState("");
 
   const invoke_clear = (e) => {
     e.preventDefault();
@@ -21,18 +21,17 @@ function Clear() {
   };
 
   return (
-    <tr className="settings_row">
-      <td></td><td></td>
-      <td><form onSubmit={invoke_clear}>
-        <div className="form-group">
-          <button className="btn btn-primary btn-sm" type="submit">Clear history</button>
-        </div>
-        <div>
-          <div>{data}</div>
-        </div>
-      </form>
-      </td>
-    </tr>
+    <>
+      <tr className="settings_row">
+        <td>Clear history</td><td>{data}</td>
+        <td><form onSubmit={invoke_clear}>
+          <div className="form-group">
+            <button className="btn btn-primary btn-sm" type="submit">Clear</button>
+          </div>
+        </form>
+        </td>
+      </tr>
+    </>
   );
 }
 export default Clear;

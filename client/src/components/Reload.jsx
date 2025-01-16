@@ -3,7 +3,7 @@ import { SettingsContext } from "./SettingsContext";
 
 function Reload() {
   const { settings }  = useContext(SettingsContext);
-  const [data, setData] = useState("Use button to reload the documents");
+  const [data, setData] = useState("");
 
   const invoke_reload = (e) => {
     e.preventDefault();
@@ -20,14 +20,12 @@ function Reload() {
   
   return (
     <tr className="settings_row">
-      <td></td><td></td>
+      <td>Reload documents</td>
+      <td>{data}</td>
       <td>
         <form onSubmit={invoke_reload}>
           <div className="form-group">
             <button className="btn btn-primary btn-sm" type="submit">Reload</button>
-          </div>
-          <div>
-            <div>{data}</div>
           </div>
         </form>
         </td>

@@ -2,18 +2,18 @@ import { SettingsContext } from "./SettingsContext";
 import React, { useState, useRef, useContext, useEffect } from "react";
 
 const Temperature = () => {
-  const { settings , updateSettings } = useContext(SettingsContext);
+  const { settings, updateSettings } = useContext(SettingsContext);
   const timeoutRef = useRef(null);
 
   // State variables
   const [value, setValue] = useState(settings.Temperature.value || 0.0);
-  const [data, setData] = useState(`Temperature set to ${settings.Temperature.value || 0.0}`);
+  const [data, setData] = useState(`Temperature set to ${settings.Temperature.value.toFixed || 0.0}`);
   const [isLoading, setIsLoading] = useState(false);
 
   // Synchronize `value` and `data` with `settings.Temperature`
   useEffect(() => {
     setValue(settings.Temperature.value || 0.0);
-    setData(`Temperature set to ${settings.Temperature.value.value || 0.0}`);
+    setData(`Temperature set to ${settings.Temperature.value.toFixed(1) || 0.0}`);
   }, [settings.Temperature.value]);
 
   const handleChange = (event) => {
@@ -50,16 +50,15 @@ const Temperature = () => {
   const isDisabled = isLoading || parseFloat(value.toFixed(1)) === parseFloat((settings.Temperature.value || 0.0).toFixed(1));
 
   return (
-    <tr className="settings_row">
-    <td>
-      Temperature
-    </td>
-    <td>
-      {value.toFixed(1)}
-    </td>
-
-    <td>
-        <form onSubmit={invoke_temp}>
+    <>
+      <tr>
+        <td>
+          Temperature
+        </td>
+        <td>
+          {value.toFixed(1)}
+        </td>
+        <td>
           <input
             onChange={handleChange}
             value={value}
@@ -68,13 +67,20 @@ const Temperature = () => {
             min="0.0"
             max="2.0"
           />
-          <div>{data}</div>
-          <button className="btn btn-primary btn-sm" type="submit" disabled={isDisabled}>
+        </td>
+      </tr>
+      <tr className="settings_row">
+        <td></td>
+        <td>{data}</td>
+        <td>
+          <form onSubmit={invoke_temp}>
+            <button className="btn btn-primary btn-sm" type="submit" disabled={isDisabled}>
               {isLoading ? "Setting..." : "Set"}
             </button>
-        </form>
-      </td>
+          </form>
+        </td>
       </tr>
+    </>
   );
 };
 
