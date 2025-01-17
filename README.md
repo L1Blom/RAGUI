@@ -61,4 +61,3 @@ There are 3 pages:
 |Reload documents|by the RAG|
 |LLM| select f.i. **gpt-4o-mini**|
 |Embedding| selet f.i.  **text-embedding-3-small**|
-
