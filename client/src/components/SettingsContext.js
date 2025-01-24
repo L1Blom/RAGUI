@@ -9,7 +9,7 @@ export const SettingsProvider = ({ children }) => {
             value: 'https://home.lblom.nl', type: 'string', prio: 'server'
         },
         Project: {
-            value: 'centric', type: 'string', prio: 'server'
+            value: 'azure', type: 'string', prio: 'server'
         },
         Provider: {
             value: '', type: 'string', prio: 'server'

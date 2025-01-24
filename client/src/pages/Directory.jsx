@@ -36,7 +36,7 @@ const Directory = () => {
                                     <td>
                                         <a className="btn btn-primary btn-sm" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
                                         &nbsp;
-                                        <a className="btn btn-primary btn-sm" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file='+item.name+'&action=delete'}>Delete</a>
+                                        <a className="btn btn-primary btn-sm" target="#" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file='+item.name+'&action=delete'}>Delete</a>
                                     </td>
                                 </tr>)
                         })}

@@ -29,10 +29,6 @@
     font-weight: 400;
 }
 
-.text_message {
-    white-space: pre-wrap;
-}
-
 .bubble-container .left_bubble {
     float: left;
     margin-left: 3px;
