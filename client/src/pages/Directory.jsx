@@ -7,6 +7,18 @@ const Directory = () => {
     const [files, setFiles] = useState({});
     const { settings } = useContext(SettingsContext);
 
+    const file_action = (e, item) => {
+        e.preventDefault();
+        const api = settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file=' + item.name + '&action=delete'
+        fetch(api).then((res) => res.json()).then((data) => {
+            setFiles(data);
+        })
+            .catch((error) => console.error("Error deleting file:", error));
+
+        console.log('Delete file',item.name);
+        return;
+        }
+    
     // Fetch models once when the component mounts
     useEffect(() => {
         const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/context` +
@@ -35,8 +47,13 @@ const Directory = () => {
                                     <td className="file-name">{item.name}</td>
                                     <td>
                                         <a className="btn btn-primary btn-sm" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
-                                        &nbsp;
-                                        <a className="btn btn-primary btn-sm" target="#" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file='+item.name+'&action=delete'}>Delete</a>
+                                    &nbsp;
+                                        <form onSubmit={(e) => file_action(e, item)}>
+                                        <button id="delete" className="btn btn-primary btn-sm"
+                                        >
+                                                Delete
+                                            </button>
+                                        </form>                                        
                                     </td>
                                 </tr>)
                         })}

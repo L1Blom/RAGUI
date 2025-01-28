@@ -38,7 +38,8 @@ export const SettingsProvider = ({ children }) => {
         Embedding: {
             value: '', type: 'string', prio: 'server'
         },
-        State: 'initial'
+        State: 'initial',
+        timestamp: new Date().getTime()
     }
     const savedSettings = JSON.parse(localStorage.getItem("settings"));
     const [settings, setSettings] =
@@ -73,6 +74,7 @@ export const SettingsProvider = ({ children }) => {
                 });
                 updatedSettings['Provider'].value = result['USE_LLM'];
                 updatedSettings['State'] = 'initialized';
+                updatedSettings['timestamp'] = result['timestamp'];
                 setSettings(updatedSettings);
             });
         };

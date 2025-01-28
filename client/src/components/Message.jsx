@@ -22,9 +22,16 @@ function Message(props) {
         .map(({ metadata, page_content, score }, index) => {
           let href = api + '/file?file=' + metadata.source
           let tpage = ''
-          let page = metadata.page
+          let page = 1
+          if (metadata.page !== undefined) {  
+            page = metadata.page
+          }
+          if (metadata.page_number !== undefined) { 
+            page = metadata.page_number
+          }
+          
           if (typeof page === 'number') {
-            page = parseInt(metadata.page) + 1
+            page = parseInt(page) + 1
             tpage = 'Page ' + page + ' from: '
             href = href + '&time=' + myTime + index + '#page=' + page
           } else {

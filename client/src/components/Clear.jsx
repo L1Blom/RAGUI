@@ -9,7 +9,7 @@ function Clear() {
     e.preventDefault();
     setData("Clearing history...")
     async function fetchData() {
-      let api = `${settings.PROD_API.invoke_clear}/prompt/${settings.Project.value}/clear`
+      let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/clear`
       const response = await fetch(
         `${api}`
       );
