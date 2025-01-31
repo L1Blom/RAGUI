@@ -15,10 +15,10 @@ const Directory = () => {
         })
             .catch((error) => console.error("Error deleting file:", error));
 
-        console.log('Delete file',item.name);
+        console.log('Delete file', item.name);
         return;
-        }
-    
+    }
+
     // Fetch models once when the component mounts
     useEffect(() => {
         const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/context` +
@@ -43,19 +43,18 @@ const Directory = () => {
                     <tbody>
                         {files.items.map((item, index) => {
                             return (<tr key={index}>
-                                    <td>{index+1}</td>
-                                    <td className="file-name">{item.name}</td>
-                                    <td>
+                                <td>{index + 1}</td>
+                                <td className="file-name">{item.name}</td>
+                                <td>
+                                    <span style={{ display: 'flex', gap: '2px' }}>
                                         <a className="btn btn-primary btn-sm" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
-                                    &nbsp;
                                         <form onSubmit={(e) => file_action(e, item)}>
-                                        <button id="delete" className="btn btn-primary btn-sm"
-                                        >
-                                                Delete
-                                            </button>
-                                        </form>                                        
-                                    </td>
-                                </tr>)
+                                            <button id="delete" className="btn btn-primary btn-sm"
+                                            >Delete</button>
+                                        </form>
+                                    </span>
+                                </td>
+                            </tr>)
                         })}
                         <Upload />
                     </tbody>

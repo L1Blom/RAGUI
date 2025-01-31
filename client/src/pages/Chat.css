@@ -184,7 +184,6 @@ a#send-it svg {
     margin: 0;
     padding: 0;
     word-break: break-all; /* Add this line to wrap long text */
-    margin-left: 25px;
   }
   .upload-status {
     word-break: break-all; /* Add this line to wrap long text */
