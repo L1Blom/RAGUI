@@ -19,7 +19,7 @@ export const SettingsProvider = ({ children }) => {
         },
         Score: {
             value: 0.2, type: 'float', prio: 'client'
-        },  
+        },
         NoChunks: {
             value: 0, type: 'number', prio: 'server'
         },
@@ -41,27 +41,34 @@ export const SettingsProvider = ({ children }) => {
         State: 'initial',
         timestamp: new Date().getTime()
     }
-    const savedSettings = JSON.parse(localStorage.getItem("settings"));
-    const [settings, setSettings] =
-        useState((savedSettings === null || !deepEqual(savedSettings, initialSettings)) ?
-            initialSettings : savedSettings);
 
-    useEffect(() => {
-        // Fetch initial settings from an API
-        const invoke_globals = () => {
-            console.log('Fetching globals');
-            async function fetchData() {
-                let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
-                const response = await fetch(api);
-                return response.json();
-            }
+    const [settings, setSettings] = useState(() => {
+        const savedSettings = localStorage.getItem("settings");
+        return savedSettings ? JSON.parse(savedSettings) : initialSettings;
+    });
 
-            fetchData().then(result => {
+    async function fetchData() {
+        let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
+        const response = await fetch(api);
+        return response.json();
+    }
+
+    const invoke_globals = () => {
+        fetchData().then(result => {
+            const savedSettings = JSON.parse(localStorage.getItem("settings"));
+            if (savedSettings &&
+                deepEqual(savedSettings, initialSettings) &&
+                savedSettings['timestamp'] === result['timestamp']) {
+                console.log('Settings are the same');
+                setSettings(savedSettings);
+            } else {
+                console.log('Settings are different');
                 const updatedSettings = { ...settings };
                 Object.entries(result).forEach(([key, value]) => {
                     if (key in updatedSettings) {
                         if (key !== 'State') {
                             if (settings[key].prio === 'server') {
+                                console.log('Updating', key, 'from server:', value);
                                 if (updatedSettings[key].type === 'number') {
                                     value = Number(value);
                                 } else if (updatedSettings[key].type === 'float') {
@@ -71,17 +78,21 @@ export const SettingsProvider = ({ children }) => {
                             }
                         }
                     }
+                    ;
+                    updatedSettings['Provider'].value = result['USE_LLM'];
+                    updatedSettings['State'] = 'initialized';
+                    updatedSettings['timestamp'] = result['timestamp'];
+                    setSettings(updatedSettings);
                 });
-                updatedSettings['Provider'].value = result['USE_LLM'];
-                updatedSettings['State'] = 'initialized';
-                updatedSettings['timestamp'] = result['timestamp'];
-                setSettings(updatedSettings);
-            });
-        };
+            };
+        });
+    }
+
+    useEffect(() => {
         if (settings.State === 'initial') {
             invoke_globals();
         }
-    }, [settings]);
+    }, []);
 
     useEffect(() => {
         if (settings.State === 'initialized') {
@@ -90,43 +101,45 @@ export const SettingsProvider = ({ children }) => {
     }, [settings]);
 
     function deepEqual(object1, object2) {
+        // keys from object1 are leading
         const keys1 = Object.keys(object1);
         const keys2 = Object.keys(object2);
 
         if (keys1.length !== keys2.length) {
-          return false;
+            return false;
         }
-      
+
         for (const key of keys1) {
-          if (!keys2.includes(key)) {
-            return false;
-          }
-          const val1 = object1[key];
-          const val2 = object2[key];
-          const areObjects = isObject(val1) && isObject(val2);
-          if (
-              areObjects && !deepEqual(val1, val2)
-          ) {
-            return false;
-          }
+            if (!keys2.includes(key)) {
+                return false;
+            }
+            const val1 = object1[key];
+            const val2 = object2[key];
+            const areObjects = isObject(val1) && isObject(val2);
+            if (
+                areObjects && !deepEqual(val1, val2)
+            ) {
+                return false;
+            }
         }
 
         return true;
-      }
-      
-      function isObject(object) {
+    }
+
+    function isObject(object) {
         return object != null && typeof object === 'object';
-      }
-    
+    }
+
     // Function to update settings via an API
     const updateSettings = (newSettings) => {
+        console.log('Updating settings', newSettings);
         setSettings((prevSettings) => {
             const updatedSettings = {
                 ...prevSettings
             }
             if (updatedSettings[newSettings.key]) {
                 updatedSettings[newSettings.key].value = newSettings.value;
-                
+
             }
             return updatedSettings;
         });

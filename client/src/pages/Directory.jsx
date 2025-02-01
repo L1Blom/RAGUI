@@ -19,8 +19,7 @@ const Directory = () => {
         return;
     }
 
-    // Fetch models once when the component mounts
-    useEffect(() => {
+    const refreshFiles = () => {
         const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/context` +
             '?file=&action=list';
 
@@ -28,8 +27,12 @@ const Directory = () => {
             setFiles(data);
         })
             .catch((error) => console.error("Error fetching models:", error));
+    }
 
-    }, [settings]);
+    // Fetch models once when the component mounts
+    useEffect(() => {
+        refreshFiles();
+    }, []);
 
     if (files && files.type === 'folder') {
         return (
@@ -56,7 +59,7 @@ const Directory = () => {
                                 </td>
                             </tr>)
                         })}
-                        <Upload />
+                        <Upload onUpload={refreshFiles} />
                     </tbody>
                 </table>
             </div>
