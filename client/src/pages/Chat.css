@@ -129,6 +129,17 @@ input#chat-input {
     font-size: 16px;
 }
 
+.spin {
+    border: none;
+    font-family: inherit;
+    width:100%;
+    height: 50px;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+}
+
+
 a#send-it {
     width: 50px;
     font-weight: 700;
@@ -189,3 +200,24 @@ a#send-it svg {
     word-break: break-all; /* Add this line to wrap long text */
     max-width: 200px; /* Adjust the width as needed */
   }
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #000;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.send_it.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

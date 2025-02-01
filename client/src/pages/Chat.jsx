@@ -9,6 +9,7 @@ import "./Chat.css";
 function Chat() {
   // this function opens the chat
   const { settings } = useContext(SettingsContext);
+  const [isLoading, setIsLoading] = useState(false);
 
   function saveMessages(messages) {
     localStorage.setItem('chatMessages', JSON.stringify(messages));
@@ -57,7 +58,6 @@ function Chat() {
 
   useEffect(() => {
     saveMessages(chatMessages);
-    console.log("chatMessages updated");
   }, [chatMessages]);
 
   function askAI(mode) {
@@ -82,6 +82,7 @@ function Chat() {
     ];
     setChatMessages(messages);
     chat_scroll_up()
+    setIsLoading(true);
 
     var postData = {
       method: "POST",
@@ -123,10 +124,12 @@ function Chat() {
         ];
         setChatMessages(messages);
         chat_scroll_up()
+        setIsLoading(false);
       })
       .catch((err) => {
         console.log("-->>")
         console.log(err)
+        setIsLoading(false);
       });
   }
 
@@ -160,18 +163,24 @@ function Chat() {
         </div>
         <div className="chat-input">
           <div className="blanter-msg">
-            <input
+            {isLoading &&
+              <div className="spin">
+                <div className="spinner"></div>
+              </div>
+            }
+            {!isLoading && <input
               type="text"
               id="chat-input"
               placeholder="How can I help..."
               maxLength="400"
-            />
+              disabled={isLoading}
+            />}
             <a
-              onClick={() => askAI('prompt')}
+              onClick={() => !isLoading && askAI('prompt')}
               href="#send_message"
               id="send-it"
               title="Process prompt!"
-              className="send_it"
+              className={`send_it ${isLoading ? 'disabled' : ''}`}
             >
               <svg viewBox="0 2 28 28" fill="none">
                 <g id="Page-1" stroke="currentColor" strokeWidth="1" fill="none" fillRule="evenodd">
@@ -181,11 +190,11 @@ function Chat() {
               </svg>
             </a>
             <a
-              onClick={() => askAI('search')}
+              onClick={() => !isLoading && askAI('search')}
               href="#send_message"
               id="send-it"
               title="Show context documents"
-              className="send_it"
+              className={`send_it ${isLoading ? 'disabled' : ''}`}
             >
               <svg viewBox="0 -4 20 20" version="1.1" fill="currentColor">
                 <g id="Page-1" stroke="currentColor" strokeWidth="1" fill="none" fillRule="evenodd">
@@ -206,11 +215,11 @@ function Chat() {
               </svg>
             </a>
             <a
-              onClick={() => last_prompt()}
+              onClick={() => !isLoading && last_prompt()}
               href="#last_prompt"
               id="send-it"
               title="Fill in last prompt"
-              className="send_it"
+              className={`send_it ${isLoading ? 'disabled' : ''}`}
             >
               <svg viewBox="-5 -4 28 28">
                 <g id="Page-1" stroke="currentColor" strokeWidth="1" fill="none" fillRule="evenodd">
@@ -224,11 +233,11 @@ function Chat() {
               </svg>
             </a>
             <a
-              onClick={() => clearMessages()}
+              onClick={() => !isLoading && clearMessages()}
               href="#clear_message"
               id="send-it"
               title="Clear messages"
-              className="send_it"
+              className={`send_it ${isLoading ? 'disabled' : ''}`}
             >
               <svg viewBox="-1 -4 28 28">
               <g id="Page-1" stroke="currentColor" strokeWidth="1" fill="currentColor" fillRule="evenodd">
