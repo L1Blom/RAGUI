@@ -6,7 +6,7 @@ export const SettingsProvider = ({ children }) => {
 
     const initialSettings = {
         PROD_API: {
-            value: 'https://home.lblom.nl', type: 'string', prio: 'server'
+            value: 'http://localhost:5000', type: 'string', prio: 'server'
         },
         Project: {
             value: 'azure', type: 'string', prio: 'server'
@@ -49,50 +49,54 @@ export const SettingsProvider = ({ children }) => {
 
     async function fetchData() {
         let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
-        const response = await fetch(api);
-        return response.json();
-    }
-
-    const invoke_globals = () => {
-        fetchData().then(result => {
-            const savedSettings = JSON.parse(localStorage.getItem("settings"));
-            if (savedSettings &&
-                deepEqual(savedSettings, initialSettings) &&
-                savedSettings['timestamp'] === result['timestamp']) {
-                console.log('Settings are the same');
-                setSettings(savedSettings);
-            } else {
-                console.log('Settings are different');
-                const updatedSettings = { ...settings };
-                Object.entries(result).forEach(([key, value]) => {
-                    if (key in updatedSettings) {
-                        if (key !== 'State') {
-                            if (settings[key].prio === 'server') {
-                                console.log('Updating', key, 'from server:', value);
-                                if (updatedSettings[key].type === 'number') {
-                                    value = Number(value);
-                                } else if (updatedSettings[key].type === 'float') {
-                                    value = parseFloat(value);
-                                }
-                                updatedSettings[key].value = value;
-                            }
-                        }
-                    }
-                    ;
-                    updatedSettings['Provider'].value = result['USE_LLM'];
-                    updatedSettings['State'] = 'initialized';
-                    updatedSettings['timestamp'] = result['timestamp'];
-                    setSettings(updatedSettings);
-                });
-            };
-        });
+        try {
+            const response = await fetch(api);
+            return response.json();
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }
 
     useEffect(() => {
-        if (settings.State === 'initial') {
-            invoke_globals();
+        const invoke_globals = () => {
+            fetchData().then(result => {
+                const savedSettings = JSON.parse(localStorage.getItem("settings"));
+                if (savedSettings &&
+                    deepEqual(savedSettings, initialSettings) &&
+                    savedSettings['timestamp'] === result['timestamp'] &&
+                    savedSettings['Project'].value === result['Project']) {
+                    console.log('Settings are the same');
+                    setSettings(savedSettings);
+                } else {
+                    console.log('Settings are different');
+                    const updatedSettings = { ...settings };
+                    Object.entries(result).forEach(([key, value]) => {
+                        if (key in updatedSettings) {
+                            if (key !== 'State') {
+                                if (settings[key].prio === 'server') {
+                                    console.log('Updating', key, 'from server:', value);
+                                    if (updatedSettings[key].type === 'number') {
+                                        value = Number(value);
+                                    } else if (updatedSettings[key].type === 'float') {
+                                        value = parseFloat(value);
+                                    }
+                                    updatedSettings[key].value = value;
+                                }
+                            }
+                        }
+                        ;
+                        updatedSettings['Provider'].value = result['USE_LLM'];
+                        updatedSettings['State'] = 'initialized';
+                        updatedSettings['timestamp'] = result['timestamp'];
+                        setSettings(updatedSettings);
+                    });
+                };
+            });
         }
-    }, []);
+
+        console.log('Invoking globals');
+        invoke_globals();
+    }, []); // Empty dependency array to run only on mount
 
     useEffect(() => {
         if (settings.State === 'initialized') {

@@ -18,7 +18,9 @@ function Score() {
     };
 
     useEffect(() => {
-        updateSettings({ key: "Score", value: value });
+        if (settings.State === "initialized") {
+            updateSettings({ key: "Score", value: value });
+        }
     }, [value]);
 
     return (

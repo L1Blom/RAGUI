@@ -18,7 +18,9 @@ function Similar() {
     };
 
     useEffect(() => {
-        updateSettings({ key: "Similar", value: value });
+        if (settings.State === "initialized") {
+            updateSettings({ key: "Similar", value: value });
+        }
     }, [value]);
 
     return (
