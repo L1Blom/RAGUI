@@ -65,16 +65,13 @@ export const SettingsProvider = ({ children }) => {
                     deepEqual(savedSettings, initialSettings) &&
                     savedSettings['timestamp'] === result['timestamp'] &&
                     savedSettings['Project'].value === result['Project']) {
-                    console.log('Settings are the same');
                     setSettings(savedSettings);
                 } else {
-                    console.log('Settings are different');
                     const updatedSettings = { ...settings };
                     Object.entries(result).forEach(([key, value]) => {
                         if (key in updatedSettings) {
                             if (key !== 'State') {
                                 if (settings[key].prio === 'server') {
-                                    console.log('Updating', key, 'from server:', value);
                                     if (updatedSettings[key].type === 'number') {
                                         value = Number(value);
                                     } else if (updatedSettings[key].type === 'float') {
@@ -94,7 +91,6 @@ export const SettingsProvider = ({ children }) => {
             });
         }
 
-        console.log('Invoking globals');
         invoke_globals();
     }, []); // Empty dependency array to run only on mount
 
@@ -136,7 +132,6 @@ export const SettingsProvider = ({ children }) => {
 
     // Function to update settings via an API
     const updateSettings = (newSettings) => {
-        console.log('Updating settings', newSettings);
         setSettings((prevSettings) => {
             const updatedSettings = {
                 ...prevSettings

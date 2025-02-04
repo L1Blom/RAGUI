@@ -139,8 +139,8 @@ input#chat-input {
     font-size: 16px;
 }
 
-
-a#send-it {
+button#send-it {
+    border: none;
     width: 50px;
     font-weight: 700;
     padding: 2px 2px 0;
@@ -150,7 +150,7 @@ a#send-it {
     float: right;
 }
 
-a#send-it svg {
+button#send-it svg {
     fill: var(--chat-primary-bg);
     height: 47px;
     width: 47px;
