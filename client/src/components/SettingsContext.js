@@ -5,8 +5,11 @@ export const SettingsContext = createContext();
 export const SettingsProvider = ({ children }) => {
 
     const initialSettings = {
+        CONFIG_API: {
+            value: 'http://localhost:5001', type: 'string', prio: 'client'
+        },
         PROD_API: {
-            value: 'http://localhost:5000', type: 'string', prio: 'server'
+            value: '', type: 'string', prio: 'server'
         },
         Project: {
             value: 'azure', type: 'string', prio: 'server'
@@ -47,6 +50,8 @@ export const SettingsProvider = ({ children }) => {
         return savedSettings ? JSON.parse(savedSettings) : initialSettings;
     });
 
+    const [loading, setLoading] = useState(true);
+
     async function fetchData() {
         let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
         try {
@@ -54,43 +59,65 @@ export const SettingsProvider = ({ children }) => {
             return response.json();
         } catch (error) {
             console.error('Error:', error);
+            return error;
+        }
+    }
+
+    async function fetchConfig() {
+        let api = `${settings.CONFIG_API.value}/get?project=${settings.Project.value}`;
+        try {
+            const response = await fetch(api);
+            return response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return error;
         }
     }
 
     useEffect(() => {
-        const invoke_globals = () => {
-            fetchData().then(result => {
-                const savedSettings = JSON.parse(localStorage.getItem("settings"));
-                if (savedSettings &&
-                    deepEqual(savedSettings, initialSettings) &&
-                    savedSettings['timestamp'] === result['timestamp'] &&
-                    savedSettings['Project'].value === result['Project']) {
-                    setSettings(savedSettings);
+        const invoke_globals = async () => {
+            try {
+                const configResult = await fetchConfig();
+                updateSettings({ key: 'PROD_API', value: configResult['api']})
+                const dataResult = await fetchData();
+                if (typeof dataResult === 'string') {
+                    throw new Error(dataResult);
                 } else {
-                    const updatedSettings = { ...settings };
-                    Object.entries(result).forEach(([key, value]) => {
-                        if (key in updatedSettings) {
-                            if (key !== 'State') {
-                                if (settings[key].prio === 'server') {
-                                    if (updatedSettings[key].type === 'number') {
-                                        value = Number(value);
-                                    } else if (updatedSettings[key].type === 'float') {
-                                        value = parseFloat(value);
+                    const savedSettings = JSON.parse(localStorage.getItem("settings"));
+                    if (savedSettings &&
+                        deepEqual(savedSettings, initialSettings) &&
+                        savedSettings['timestamp'] === dataResult['timestamp'] &&
+                        savedSettings['Project'].value === configResult['project']) {
+                        setSettings(savedSettings);
+                    } else {
+                        console.log("Setting new settings")
+                        const updatedSettings = { ...settings };
+                        Object.entries(dataResult).forEach(([key, value]) => {
+                            if (key in updatedSettings) {
+                                if (key !== 'State') {
+                                    if (settings[key].prio === 'server') {
+                                        if (updatedSettings[key].type === 'number') {
+                                            value = Number(value);
+                                        } else if (updatedSettings[key].type === 'float') {
+                                            value = parseFloat(value);
+                                        }
+                                        updatedSettings[key].value = value;
                                     }
-                                    updatedSettings[key].value = value;
                                 }
                             }
-                        }
-                        ;
-                        updatedSettings['Provider'].value = result['USE_LLM'];
+                        });
+                        updatedSettings['Provider'].value = dataResult['USE_LLM'];
                         updatedSettings['State'] = 'initialized';
-                        updatedSettings['timestamp'] = result['timestamp'];
+                        updatedSettings['timestamp'] = dataResult['timestamp'];
                         setSettings(updatedSettings);
-                    });
-                };
-            });
-        }
-
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
         invoke_globals();
     }, []); // Empty dependency array to run only on mount
 
@@ -144,9 +171,14 @@ export const SettingsProvider = ({ children }) => {
         });
     };
 
-    return (
-        <SettingsContext.Provider value={{ settings, updateSettings }}>
-            {children}
-        </SettingsContext.Provider>
-    );
+    if (loading) {
+        return <div>Loading...</div>;
+    } else {
+
+        return (
+            <SettingsContext.Provider value={{ settings, updateSettings }}>
+                {children}
+            </SettingsContext.Provider>
+        );
+    }
 };
