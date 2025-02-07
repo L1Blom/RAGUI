@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
+import config from '../config.json'; // Import config.json
 
 export const SettingsContext = createContext();
 
@@ -6,13 +7,13 @@ export const SettingsProvider = ({ children }) => {
 
     const initialSettings = {
         CONFIG_API: {
-            value: 'http://localhost:5001', type: 'string', prio: 'client'
+            value: config.CONFIG_API, type: 'string', prio: 'client' // Use value from config.json
         },
         PROD_API: {
             value: '', type: 'string', prio: 'server'
         },
         Project: {
-            value: 'azure', type: 'string', prio: 'server'
+            value: config.CONFIG_PROJECT, type: 'string', prio: 'server'
         },
         Provider: {
             value: '', type: 'string', prio: 'server'
@@ -51,15 +52,22 @@ export const SettingsProvider = ({ children }) => {
     });
 
     const [loading, setLoading] = useState(true);
+    const [stop, setStop] = useState(false);
 
     async function fetchData() {
         let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
         try {
             const response = await fetch(api);
-            return response.json();
+            if (response.status !== 200) {
+                setStop(true);
+                return null;
+            } else {
+                return response.json();
+            }
         } catch (error) {
             console.error('Error:', error);
-            return error;
+            setStop(true);
+            return null;
         }
     }
 
@@ -67,10 +75,16 @@ export const SettingsProvider = ({ children }) => {
         let api = `${settings.CONFIG_API.value}/get?project=${settings.Project.value}`;
         try {
             const response = await fetch(api);
-            return response.json();
+            if (response.status !== 200) {
+                setStop(true);
+                return null;
+            } else {
+                return response.json();
+            }
         } catch (error) {
             console.error('Error:', error);
-            return error;
+            setStop(true);
+            return null;
         }
     }
 
@@ -78,10 +92,20 @@ export const SettingsProvider = ({ children }) => {
         const invoke_globals = async () => {
             try {
                 const configResult = await fetchConfig();
-                updateSettings({ key: 'PROD_API', value: configResult['api']})
+                if (stop || !configResult) {
+                    console.log('Error config')
+                    throw new Error('Could not access config server');
+                } else {
+                    const host = 'http://' + configResult['host'] + ':' + configResult['port']
+                    updateSettings({
+                        key: 'PROD_API',
+                        value: host
+                    })
+                }
                 const dataResult = await fetchData();
-                if (typeof dataResult === 'string') {
-                    throw new Error(dataResult);
+                if (stop || !dataResult) {
+                    console.log('Error data');
+                    throw new Error('Could not fetch data');
                 } else {
                     const savedSettings = JSON.parse(localStorage.getItem("settings"));
                     if (savedSettings &&
@@ -90,7 +114,6 @@ export const SettingsProvider = ({ children }) => {
                         savedSettings['Project'].value === configResult['project']) {
                         setSettings(savedSettings);
                     } else {
-                        console.log("Setting new settings")
                         const updatedSettings = { ...settings };
                         Object.entries(dataResult).forEach(([key, value]) => {
                             if (key in updatedSettings) {
@@ -114,12 +137,17 @@ export const SettingsProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error('Error:', error);
+                setStop(true)
             } finally {
-                setLoading(false);
+                if (stop) {
+                    setLoading(true);
+                } else {
+                    setLoading(false);
+                }
             }
         };
         invoke_globals();
-    }, []); // Empty dependency array to run only on mount
+    }, [stop]); // Add stop to dependency array to re-run if stop changes
 
     useEffect(() => {
         if (settings.State === 'initialized') {
@@ -171,14 +199,26 @@ export const SettingsProvider = ({ children }) => {
         });
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
+    if (stop) {
+        return <div>
+            <h2>No RAG server found</h2>
+            check errors:
+            <ul>
+                <li>missing config.json?</li>
+                <li>Configserver not runnig?</li>
+                <li>RAG server not running?</li>
+            </ul>
+        </div>;
     } else {
+        if (loading) {
+            return <div>Loading...</div>;
+        } else {
 
-        return (
-            <SettingsContext.Provider value={{ settings, updateSettings }}>
-                {children}
-            </SettingsContext.Provider>
-        );
+            return (
+                <SettingsContext.Provider value={{ settings, updateSettings }}>
+                    {children}
+                </SettingsContext.Provider>
+            );
+        }
     }
 };
