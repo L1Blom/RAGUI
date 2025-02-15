@@ -1,19 +1,33 @@
 import React, { createContext, useState, useEffect } from "react";
 import config from '../config.json'; // Import config.json
+import Config from "./Config";
+import Navbar from "./Navbar";
 
 export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
 
+    var host = 'http://' + window.location.hostname + ':8000'
+    if (config.CONFIG_API) {
+        host = config.CONFIG_API;
+    }
+
+    var myproject;
+    if (config.CONFIG_PROJECT) {
+        myproject = config.CONFIG_PROJECT
+    }
+    var project = localStorage.getItem('project') || myproject || 'azure';
+    
+
     const initialSettings = {
         CONFIG_API: {
-            value: config.CONFIG_API, type: 'string', prio: 'client' // Use value from config.json
+            value: host, type: 'string', prio: 'client' // Use value from config.json
         },
         PROD_API: {
             value: '', type: 'string', prio: 'server'
         },
         Project: {
-            value: config.CONFIG_PROJECT, type: 'string', prio: 'server'
+            value: project, type: 'string', prio: 'server'
         },
         Provider: {
             value: '', type: 'string', prio: 'server'
@@ -47,15 +61,14 @@ export const SettingsProvider = ({ children }) => {
     }
 
     const [settings, setSettings] = useState(() => {
-        const savedSettings = localStorage.getItem("settings");
+        const savedSettings = localStorage.getItem(project);
         return savedSettings ? JSON.parse(savedSettings) : initialSettings;
     });
 
     const [loading, setLoading] = useState(true);
     const [stop, setStop] = useState(false);
 
-    async function fetchData() {
-        let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/globals`;
+    async function fetchData(api) {
         try {
             const response = await fetch(api);
             if (response.status !== 200) {
@@ -66,24 +79,22 @@ export const SettingsProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Error:', error);
-            setStop(true);
+            //setStop(true);
             return null;
         }
     }
 
-    async function fetchConfig() {
-        let api = `${settings.CONFIG_API.value}/get?project=${settings.Project.value}`;
+    async function fetchConfig(project) {
+        let api = `${settings.CONFIG_API.value}/get?project=${project}`;
         try {
             const response = await fetch(api);
             if (response.status !== 200) {
-                setStop(true);
                 return null;
             } else {
                 return response.json();
             }
         } catch (error) {
             console.error('Error:', error);
-            setStop(true);
             return null;
         }
     }
@@ -91,67 +102,62 @@ export const SettingsProvider = ({ children }) => {
     useEffect(() => {
         const invoke_globals = async () => {
             try {
-                const configResult = await fetchConfig();
-                if (stop || !configResult) {
+                const configResult = await fetchConfig(project);
+                if (!configResult) {
                     console.log('Error config')
                     throw new Error('Could not access config server');
                 } else {
-                    const host = 'http://' + configResult['host'] + ':' + configResult['port']
-                    updateSettings({
-                        key: 'PROD_API',
-                        value: host
-                    })
-                }
-                const dataResult = await fetchData();
-                if (stop || !dataResult) {
-                    console.log('Error data');
-                    throw new Error('Could not fetch data');
-                } else {
-                    const savedSettings = JSON.parse(localStorage.getItem("settings"));
-                    if (savedSettings &&
-                        deepEqual(savedSettings, initialSettings) &&
-                        savedSettings['timestamp'] === dataResult['timestamp'] &&
-                        savedSettings['Project'].value === configResult['project']) {
-                        setSettings(savedSettings);
+                    let host = `http://${configResult.host}:${configResult.port}`
+                    let api = host+`/prompt/${project}/globals`;
+                    const dataResult = await fetchData(api);
+                    if (!dataResult) {
+                        console.log('Error data');
+                        throw new Error('Could not fetch data');
                     } else {
-                        const updatedSettings = { ...settings };
-                        Object.entries(dataResult).forEach(([key, value]) => {
-                            if (key in updatedSettings) {
-                                if (key !== 'State') {
-                                    if (settings[key].prio === 'server') {
-                                        if (updatedSettings[key].type === 'number') {
-                                            value = Number(value);
-                                        } else if (updatedSettings[key].type === 'float') {
-                                            value = parseFloat(value);
+                        const savedSettings = JSON.parse(localStorage.getItem(project));
+                        if (savedSettings &&
+                            deepEqual(savedSettings, initialSettings) &&
+                            savedSettings['timestamp'] === dataResult['timestamp'] &&
+                            savedSettings['Project'].value === configResult['project']) {
+                            setSettings(savedSettings);
+                        } else {
+                            const updatedSettings = { ...settings };
+                            Object.entries(dataResult).forEach(([key, value]) => {
+                                if (key in updatedSettings) {
+                                    if (key !== 'State') {
+                                        if (settings[key].prio === 'server') {
+                                            if (updatedSettings[key].type === 'number') {
+                                                value = Number(value);
+                                            } else if (updatedSettings[key].type === 'float') {
+                                                value = parseFloat(value);
+                                            }
+                                            updatedSettings[key].value = value;
                                         }
-                                        updatedSettings[key].value = value;
                                     }
                                 }
-                            }
-                        });
-                        updatedSettings['Provider'].value = dataResult['USE_LLM'];
-                        updatedSettings['State'] = 'initialized';
-                        updatedSettings['timestamp'] = dataResult['timestamp'];
-                        setSettings(updatedSettings);
+                            });
+                            updatedSettings['PROD_API'].value = host;
+                            updatedSettings['Provider'].value = dataResult['USE_LLM'];
+                            updatedSettings['State'] = 'initialized';
+                            updatedSettings['timestamp'] = dataResult['timestamp'];
+                            setSettings(updatedSettings);
+                        }
                     }
                 }
             } catch (error) {
                 console.error('Error:', error);
-                setStop(true)
+                //setStop(true)
             } finally {
-                if (stop) {
-                    setLoading(true);
-                } else {
-                    setLoading(false);
-                }
+                setLoading(false);
             }
         };
         invoke_globals();
-    }, [stop]); // Add stop to dependency array to re-run if stop changes
+    }, [project]); // Add necessary dependencies
 
     useEffect(() => {
         if (settings.State === 'initialized') {
-            localStorage.setItem("settings", JSON.stringify(settings));
+            localStorage.setItem('project',project)
+            localStorage.setItem(settings.Project.value, JSON.stringify(settings));
         }
     }, [settings]);
 
@@ -186,6 +192,32 @@ export const SettingsProvider = ({ children }) => {
     }
 
     // Function to update settings via an API
+    const switchSettings = async (project) => {
+        if (settings.Project.value !== project) {
+            var newSettings = JSON.parse(localStorage.getItem(project));
+            if (newSettings) {
+                setSettings(newSettings);
+            } else {
+                const configResult = await fetchConfig(project);
+                if (!configResult) {
+                    console.log('Error config')
+                    throw new Error('Could not access config server');
+                } else {
+                    const updatedInitialSettings = {
+                        ...initialSettings,
+                        Project: { ...initialSettings.Project, value: project },
+                        PROD_API: { ...initialSettings.PROD_API, value: `http://${configResult.host}:${configResult.port}` }
+                    };
+                    setSettings(updatedInitialSettings);
+                    localStorage.setItem(project, JSON.stringify(updatedInitialSettings)); // Store new settings in localStorage
+                }
+            }
+            localStorage.setItem('project',project)
+            setStop(false); // Reset stop to false to re-run useEffect
+        }
+    };
+
+    // Function to update settings via an API
     const updateSettings = (newSettings) => {
         setSettings((prevSettings) => {
             const updatedSettings = {
@@ -200,22 +232,17 @@ export const SettingsProvider = ({ children }) => {
     };
 
     if (stop) {
-        return <div>
-            <h2>No RAG server found</h2>
-            check errors:
-            <ul>
-                <li>missing config.json?</li>
-                <li>Configserver not runnig?</li>
-                <li>RAG server not running?</li>
-            </ul>
-        </div>;
+        return <>
+            <Navbar />
+            <Config highlightedProject={project} /> {/* Pass highlightedProject prop */}
+        </>
     } else {
         if (loading) {
             return <div>Loading...</div>;
         } else {
 
             return (
-                <SettingsContext.Provider value={{ settings, updateSettings }}>
+                <SettingsContext.Provider value={{ settings, updateSettings, switchSettings }}>
                     {children}
                 </SettingsContext.Provider>
             );

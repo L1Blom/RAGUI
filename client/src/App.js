@@ -6,6 +6,7 @@ import "bootstrap/dist/js/bootstrap.min.js";
 import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
 import Directory from "./pages/Directory";
+import Configuration from "./pages/Configuration";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Chat />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/directory" element={<Directory />} />
+        <Route path="/configuration" element={<Configuration />} />
       </Routes>
     </BrowserRouter>
   );

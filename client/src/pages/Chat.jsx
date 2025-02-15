@@ -3,26 +3,51 @@ import Message from "../components/Message";
 
 import React, { useState, useContext, useEffect } from "react";
 import { SettingsContext } from "../components/SettingsContext";
+import { useLocation } from "react-router-dom";
 
 import "./Chat.css";
 
 function Chat() {
   // this function opens the chat
-  const { settings } = useContext(SettingsContext);
+  const { settings, switchSettings } = useContext(SettingsContext);
+  const [urlProcessed, setUrlProcessed] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    const processUrlParams = async () => {
+      if (!urlProcessed) {
+        const params = new URLSearchParams(location.search);
+        const projectFromUrl = params.get('project');
+        if (projectFromUrl && projectFromUrl !== settings.Project.value) {
+          await switchSettings(projectFromUrl);
+          loadMessages();
+          setUrlProcessed(true);
+        }
+      }
+    };
+
+    processUrlParams();
+  }, [location.search]);
+
+  //useEffect(() => {
+  //  if (urlProcessed) {
+  //    console.log(settings);
+  //  }
+  //}, [settings, urlProcessed]);
 
   function saveMessages(messages) {
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
+    localStorage.setItem('messages-'+settings.Project.value, JSON.stringify(messages));
   }
 
   function loadMessages() {
-    const messages = localStorage.getItem('chatMessages');
+    const messages = localStorage.getItem('messages-'+settings.Project.value);
     return messages ? JSON.parse(messages) : [];
   }
 
   function clearMessages() {
-    localStorage.removeItem('chatMessages');
+    localStorage.removeItem('messages-'+settings.Project.value);
     setChatMessages(initialMessage);
   }
 

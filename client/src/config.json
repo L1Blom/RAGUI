@@ -1,2 +1,2 @@
-{"CONFIG_API": "http://localhost:5001",
+{"CONFIG_API": "http://192.168.2.200:8000",
 "CONFIG_PROJECT": "azure"}
