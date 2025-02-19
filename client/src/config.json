@@ -1,2 +1,4 @@
-{"CONFIG_API": "http://192.168.2.200:8000",
+{"CONFIG_API": "http://10.147.19.190:8000",
+"CONFIG_SERVER": "http://10.147.19.190",
+"CONFIG_PORT": "8000",
 "CONFIG_PROJECT": "azure"}

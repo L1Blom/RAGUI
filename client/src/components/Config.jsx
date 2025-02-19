@@ -14,6 +14,8 @@ const Config = ({ highlightedProject }) => {
     const [selectedRow, setSelectedRow] = useState(null); // Track selected row
     const [showAddRow, setShowAddRow] = useState(false); // Track if add row input fields should be shown
 
+    const providerOptions = ["OPENAI", "AZURE", "GROQ", "OLLAMA"];
+
     const refreshconfig = () => {
         const api = `${host}/get_all`;
 
@@ -93,7 +95,7 @@ const Config = ({ highlightedProject }) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                setNewRowData({ project: '', description: '', port: '' }); // Reset new row data
+                setNewRowData({ project: '', description: '', port: '', provider: '' }); // Reset new row data
                 setShowAddRow(false); // Hide the add row input fields
                 refreshconfig(); // Refresh the config after adding
             })
@@ -172,6 +174,18 @@ const Config = ({ highlightedProject }) => {
         padding: '2px'
     };
 
+    const buttonRowStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginTop: '10px'
+    };
+
+    const buttonStyle = {
+        flexGrow: 1,
+        margin: '0 5px'
+    };
+
     const isEditDisabled = selectedRow ? myconfig[selectedRow]?.status !== 'down' : true;
     const isActionDisabled = !selectedRow;
     const isSaveDisabled = editMode !== selectedRow;
@@ -182,7 +196,7 @@ const Config = ({ highlightedProject }) => {
         <div>
             <table className="config-row" border={1} width={'100%'}>
                 <thead>
-                    <tr><th>Project</th><th>Description</th><th>Port</th><th>Status</th><th>Started</th></tr>
+                    <tr><th>Project</th><th>Description</th><th>Port</th><th>Provider</th><th>Status</th><th>Started</th></tr>
                 </thead>
                 <tbody>
                     {Object.keys(myconfig).map((key, index) => {
@@ -232,6 +246,24 @@ const Config = ({ highlightedProject }) => {
                                         <span>{item.port}</span>
                                     )}
                                 </td>
+                                <td>
+                                    {isEditing ? (
+                                        <select
+                                            name="provider"
+                                            value={editData.provider}
+                                            onChange={handleInputChange}
+                                            style={inputStyle}
+                                        >
+                                            {providerOptions.map((option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span>{item.provider}</span>
+                                    )}
+                                </td>
                                 <td align="center">{getStatusIcon(item.status)}</td>
                                 <td>{item.timestamp}</td>
                             </tr>
@@ -268,41 +300,55 @@ const Config = ({ highlightedProject }) => {
                                     max="7999"
                                 />
                             </td>
+                            <td>
+                                <select
+                                    name="provider"
+                                    value={newRowData.provider}
+                                    onChange={handleNewRowInputChange}
+                                    style={inputStyle}
+                                >
+                                    {providerOptions.map((option) => (
+                                        <option key={option} value={option}>
+                                            {option}
+                                        </option>
+                                    ))}
+                                </select>
+                            </td>
                             <td align="center">{getStatusIcon('')}</td>
                             <td></td>
                         </tr>
                     )}
                 </tbody>
             </table>
-            <div className="button-row">
-                <button className="btn btn-primary btn-sm" onClick={() => handleEditClick(selectedRow)} disabled={isEditDisabled}>
+            <div className="button-row" style={buttonRowStyle}>
+                <button className="btn btn-primary btn-sm" onClick={() => handleEditClick(selectedRow)} disabled={isEditDisabled} style={buttonStyle}>
                     Edit
                 </button>
-                <button className="btn btn-primary btn-sm" onClick={() => handleActionClick(selectedRow, myconfig[selectedRow]?.status === 'up' ? 'stop' : 'start')} disabled={isActionDisabled}>
+                <button className="btn btn-primary btn-sm" onClick={() => handleActionClick(selectedRow, myconfig[selectedRow]?.status === 'up' ? 'stop' : 'start')} disabled={isActionDisabled} style={buttonStyle}>
                     {myconfig[selectedRow]?.status === 'up' ? 'Stop' : 'Start'}
                 </button>
-                <button className="btn btn-success btn-sm" onClick={() => handleSaveClick(selectedRow)} disabled={isSaveDisabled}>
+                <button className="btn btn-success btn-sm" onClick={() => handleSaveClick(selectedRow)} disabled={isSaveDisabled} style={buttonStyle}>
                     Save
                 </button>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(selectedRow)} disabled={isDeleteDisabled}>
+                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(selectedRow)} disabled={isDeleteDisabled} style={buttonStyle}>
                     Delete
                 </button>
                 {isChatDisabled ? (
-                    <button className="btn btn-info btn-sm" disabled>
+                    <button className="btn btn-info btn-sm" disabled style={buttonStyle}>
                         Chat
                     </button>
                 ) : (
-                    <a className="btn btn-info btn-sm" href={`/react/?project=${selectedRow}`}>
+                    <a className="btn btn-info btn-sm" href={`/react/?project=${selectedRow}`} style={buttonStyle}>
                         Chat
                     </a>
                 )}
                 {!showAddRow && (
-                    <button className="btn btn-success btn-sm" onClick={handleAddButtonClick}>
+                    <button className="btn btn-success btn-sm" onClick={handleAddButtonClick} style={buttonStyle}>
                         Add
                     </button>
                 )}
                 {showAddRow && (
-                    <button className="btn btn-success btn-sm" onClick={handleAddRowClick}>
+                    <button className="btn btn-success btn-sm" onClick={handleAddRowClick} style={buttonStyle}>
                         Save
                     </button>
                 )}

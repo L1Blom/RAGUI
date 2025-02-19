@@ -8,11 +8,18 @@ export const SettingsContext = createContext();
 export const SettingsProvider = ({ children }) => {
 
     var host = 'http://' + window.location.hostname + ':8000'
+    var config_server;
+    var config_port;
+    var myproject;
     if (config.CONFIG_API) {
         host = config.CONFIG_API;
     }
-
-    var myproject;
+    if (config.CONFIG_SERVER) {
+        config_server = config.CONFIG_SERVER;
+    }
+    if (config.CONFIG_PORT) {
+        config_port = config.CONFIG_PORT;
+    }
     if (config.CONFIG_PROJECT) {
         myproject = config.CONFIG_PROJECT
     }
@@ -107,7 +114,7 @@ export const SettingsProvider = ({ children }) => {
                     console.log('Error config')
                     throw new Error('Could not access config server');
                 } else {
-                    let host = `http://${configResult.host}:${configResult.port}`
+                    let host = `${config_server}:${configResult.port}`
                     let api = host+`/prompt/${project}/globals`;
                     const dataResult = await fetchData(api);
                     if (!dataResult) {
@@ -206,7 +213,7 @@ export const SettingsProvider = ({ children }) => {
                     const updatedInitialSettings = {
                         ...initialSettings,
                         Project: { ...initialSettings.Project, value: project },
-                        PROD_API: { ...initialSettings.PROD_API, value: `http://${configResult.host}:${configResult.port}` }
+                        PROD_API: { ...initialSettings.PROD_API, value: `${config_server}:${configResult.port}` }
                     };
                     setSettings(updatedInitialSettings);
                     localStorage.setItem(project, JSON.stringify(updatedInitialSettings)); // Store new settings in localStorage

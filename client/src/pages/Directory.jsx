@@ -50,7 +50,7 @@ const Directory = () => {
                                 <td className="file-name">{item.name}</td>
                                 <td>
                                     <span style={{ display: 'flex', gap: '2px' }}>
-                                        <a className="btn btn-primary btn-sm" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file=data/' + settings.Project.value + '/' + item.name}>View</a>
+                                        <a className="btn btn-primary btn-sm" target="RAGUI" href={settings.PROD_API.value + '/prompt/' + settings.Project.value + '/file?file='+ item.name}>View</a>
                                         <form onSubmit={(e) => file_action(e, item)}>
                                             <button id="delete" className="btn btn-primary btn-sm"
                                             >Delete</button>

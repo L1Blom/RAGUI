@@ -4,16 +4,37 @@ import Message from "../components/Message";
 import React, { useState, useContext, useEffect } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 import { useLocation } from "react-router-dom";
+import myconfig from "../config.json";
 
 import "./Chat.css";
 
 function Chat() {
   // this function opens the chat
   const { settings, switchSettings } = useContext(SettingsContext);
-  const [urlProcessed, setUrlProcessed] = useState(false)
+  const [urlProcessed, setUrlProcessed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null);
   const location = useLocation();
+
+  const initialMessage = [{
+    position: "left_bubble",
+    message: "Hello there, I am your assistant. How can I help you today? ",
+    score: "",
+    page_content: ""
+  }]
+
+  const [chatMessages, setChatMessages] = useState(() => {
+    const savedMessages = loadMessages();
+    setImage(null)
+    if (savedMessages) {
+      for (let i = 0; i < savedMessages.length; i++) {
+        if (savedMessages[i].position === "mid_bubble") {
+          setImage(savedMessages[i].message);
+        }
+      }
+    }
+    return savedMessages.length === 0 ? initialMessage : savedMessages;
+  });
 
   useEffect(() => {
     const processUrlParams = async () => {
@@ -22,28 +43,44 @@ function Chat() {
         const projectFromUrl = params.get('project');
         if (projectFromUrl && projectFromUrl !== settings.Project.value) {
           await switchSettings(projectFromUrl);
-          loadMessages();
+          console.log("Switched to " + projectFromUrl);
           setUrlProcessed(true);
         }
       }
     };
 
     processUrlParams();
-  }, [location.search]);
+  }, [location.search, urlProcessed, settings.Project.value, switchSettings]);
 
-  //useEffect(() => {
-  //  if (urlProcessed) {
-  //    console.log(settings);
-  //  }
-  //}, [settings, urlProcessed]);
+  useEffect(() => {
+    if (urlProcessed) {
+      const savedMessages = loadMessages(settings.Project.value);
+      setImage(null)
+      if (savedMessages) {
+        for (let i = 0; i < savedMessages.length; i++) {
+          if (savedMessages[i].position === "mid_bubble") {
+            setImage(savedMessages[i].message);
+          }
+        }
+      }  
+      setChatMessages(savedMessages.length === 0 ? initialMessage : savedMessages);
+    }
+  }, [urlProcessed, settings.Project.value]);
 
   function saveMessages(messages) {
+    console.log("Saving messages from "+settings.Project.value)
     localStorage.setItem('messages-'+settings.Project.value, JSON.stringify(messages));
   }
 
-  function loadMessages() {
-    const messages = localStorage.getItem('messages-'+settings.Project.value);
-    return messages ? JSON.parse(messages) : [];
+  function loadMessages(project) {
+    if (!isLoading) {
+      if (!project) {
+        project = settings.Project.value;
+      }
+      console.log("Getting messages from message-" + project)
+      const messages = localStorage.getItem('messages-' + project)
+      return messages ? JSON.parse(messages) : [];
+    }
   }
 
   function clearMessages() {
@@ -63,24 +100,7 @@ function Chat() {
     }
   }
 
-  const initialMessage = [{
-    position: "left_bubble",
-    message: "Hello there, I am your assistant. How can I help you today? ",
-    score: "",
-    page_content: ""
-  }]
 
-  const savedMessages = loadMessages();
-  const [chatMessages, setChatMessages] = useState( () => {
-    if(savedMessages) {
-      for (let i = 0; i < savedMessages.length; i++) {
-        if (savedMessages[i].position === "mid_bubble") {
-          setImage(savedMessages[i].message);
-        }
-      }
-    }
-    return savedMessages.length === 0 ? initialMessage : savedMessages
-  });
 
   if (chatMessages.length > 2) {
     chat_scroll_up();
@@ -105,10 +125,6 @@ function Chat() {
     }
   }
 
-  useEffect(() => {
-    saveMessages(chatMessages);
-  }, [chatMessages]);
-
   function isValidUrl(string) {
     try {
       new URL(string);
@@ -127,8 +143,11 @@ function Chat() {
     prompt_input.value = "";
     var position = "right_bubble";
     var data = null;
-
-    let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}`
+    // The hostname is always the same as the config host.
+    // Legacy versions had a full server path for the RAG, but that is obsolete
+    let host = myconfig.CONFIG_API.split(':')
+    let port = `${settings.PROD_API.value}`.split(':')[2]
+    let api = `${host[0]}:${host[1]}:${port}/prompt/${settings.Project.value}`
     if (mode === 'search') {
       api = `${api}/search`
     } else if (mode === 'image') {
@@ -148,6 +167,7 @@ function Chat() {
         }
       ];
       setChatMessages(messages);
+      saveMessages(messages)
       chat_scroll_up()
     } else {
       const messages = [
@@ -159,6 +179,7 @@ function Chat() {
         }
       ];
       setChatMessages(messages);
+      saveMessages(messages)
       chat_scroll_up()
       setIsLoading(true);
 
@@ -213,6 +234,7 @@ function Chat() {
             },
           ];
           setChatMessages(messages);
+          saveMessages(messages)
           chat_scroll_up()
           setIsLoading(false);
         })
