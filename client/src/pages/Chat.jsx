@@ -9,6 +9,11 @@ import myconfig from "../config.json";
 import "./Chat.css";
 
 function Chat() {
+  var config_server = process.env.REACT_APP_CONFIG_SERVER || '/';
+  var rag_service = process.env.REACT_APP_RAG_SERVER || config_server;
+  var project = localStorage.getItem('project') || 'azure';
+
+
   // this function opens the chat
   const { settings, switchSettings } = useContext(SettingsContext);
   const [urlProcessed, setUrlProcessed] = useState(false);
@@ -145,9 +150,8 @@ function Chat() {
     var data = null;
     // The hostname is always the same as the config host.
     // Legacy versions had a full server path for the RAG, but that is obsolete
-    let host = myconfig.CONFIG_API.split(':')
-    let port = `${settings.PROD_API.value}`.split(':')[2]
-    let api = `${host[0]}:${host[1]}:${port}/prompt/${settings.Project.value}`
+    let apihost = myconfig.PROD_API.split('/')
+    let api = `${apihost[0]}/${apihost[1]}/prompt/${settings.Project.value}`
     if (mode === 'search') {
       api = `${api}/search`
     } else if (mode === 'image') {

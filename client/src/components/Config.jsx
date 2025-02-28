@@ -1,35 +1,42 @@
-import { useState, useEffect, useContext } from "react";
-import config from '../config.json'; // Import config.json
+import { useState, useEffect } from "react";
 
 const Config = ({ highlightedProject }) => {
-    
-    var host = 'http://' + window.location.hostname + ':8000'
-    if (config.CONFIG_API) {
-        host = config.CONFIG_API
-    }
+    // Determine the host URL
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || '/';
+
+    // State variables
     const [myconfig, setMyConfig] = useState({}); // Initialize as an object
     const [editMode, setEditMode] = useState(null); // Track which row is in edit mode
     const [editData, setEditData] = useState({}); // Store data being edited
-    const [newRowData, setNewRowData] = useState({ project: '', description: '', port: '' }); // Store data for new row
+    const [newRowData, setNewRowData] = useState({ project: '', description: '', port: '', provider: 'OPENAI' }); // Store data for new row with default provider
     const [selectedRow, setSelectedRow] = useState(null); // Track selected row
     const [showAddRow, setShowAddRow] = useState(false); // Track if add row input fields should be shown
 
+    // Provider options
     const providerOptions = ["OPENAI", "AZURE", "GROQ", "OLLAMA"];
 
+    // Function to refresh the configuration
     const refreshconfig = () => {
-        const api = `${host}/get_all`;
+        const api = `${config_server}/get_all`;
 
-        fetch(api).then((res) => res.json()).then((data) => {
-            setMyConfig(data);
-            if (highlightedProject && selectedRow !== null) {
-                setSelectedRow(highlightedProject); // Highlight the project row if not already selected
-            }
-        })
-            .catch((error) => console.error("Error fetching configurations:", error));
+        fetch(api)
+            .then((res) => res.json())
+            .then((data) => {
+                setMyConfig(data);
+                if (highlightedProject && selectedRow !== null) {
+                    setSelectedRow(highlightedProject); // Highlight the project row if not already selected
+                }
+            })
+            .catch((error) => {
+                console.log("Error fetching configurations:", error);
+                setMyConfig({}); // Reset the config if there is an error
+            })
+
     }
 
+    // Handle action click (start/stop)
     const handleActionClick = (key, action) => {
-        const api = `${host}/${action}?project=${key}`;
+        const api = `${config_server}/${action}?project=${key}`;
         fetch(api, { method: 'GET' })
             .then((res) => res.json())
             .then((data) => {
@@ -39,17 +46,19 @@ const Config = ({ highlightedProject }) => {
             .catch((error) => console.error(`Error ${action}ing project:`, error));
     };
 
+    // Handle edit click
     const handleEditClick = (key) => {
         setEditMode(key);
         setEditData(myconfig[key]);
     };
 
+    // Handle save click
     const handleSaveClick = async (key) => {
         if (editData.port < 5000 || editData.port > 7999) {
             alert("Port number must be between 5000 and 7999.");
             return;
         }
-        const api = `${host}/set`;
+        const api = `${config_server}/set`;
         const saveData = { ...editData, 'originalProject': key }; // Include original project name
         await fetch(api, {
             method: 'POST',
@@ -67,13 +76,15 @@ const Config = ({ highlightedProject }) => {
             .catch((error) => console.error("Error updating project:", error));
     };
 
+    // Handle input change for edit mode
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setEditData({ ...editData, [name]: value });
     };
 
+    // Handle add row click
     const handleAddRowClick = async () => {
-        if (!newRowData.project && !newRowData.description && !newRowData.port) {
+        if (!newRowData.project && !newRowData.description && !newRowData.port && !newRowData.provider) {
             setShowAddRow(false); // Hide the add row input fields if nothing is filled in
             return;
         }
@@ -85,7 +96,7 @@ const Config = ({ highlightedProject }) => {
             alert("Port number must be between 5000 and 7999.");
             return;
         }
-        const api = `${host}/set`;
+        const api = `${config_server}/set`;
         await fetch(api, {
             method: 'POST',
             headers: {
@@ -95,15 +106,16 @@ const Config = ({ highlightedProject }) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                setNewRowData({ project: '', description: '', port: '', provider: '' }); // Reset new row data
+                setNewRowData({ project: '', description: '', port: '', provider: 'OPENAI' }); // Reset new row data with default provider
                 setShowAddRow(false); // Hide the add row input fields
                 refreshconfig(); // Refresh the config after adding
             })
             .catch((error) => console.error("Error adding project:", error));
     };
 
+    // Handle delete click
     const handleDeleteClick = (key) => {
-        const api = `${host}/delete?project=${key}`;
+        const api = `${config_server}/delete?project=${key}`;
         fetch(api, { method: 'DELETE' })
             .then((res) => res.json())
             .then((data) => {
@@ -113,11 +125,13 @@ const Config = ({ highlightedProject }) => {
             .catch((error) => console.error("Error deleting project:", error));
     };
 
+    // Handle input change for new row
     const handleNewRowInputChange = (e) => {
         const { name, value } = e.target;
         setNewRowData({ ...newRowData, [name]: value });
     };
 
+    // Handle row click
     const handleRowClick = (key) => {
         if (editMode !== key) {
             if (showAddRow && !newRowData.project && !newRowData.description && !newRowData.port) {
@@ -128,15 +142,17 @@ const Config = ({ highlightedProject }) => {
         }
     };
 
+    // Handle add button click
     const handleAddButtonClick = () => {
         setShowAddRow(true);
     };
 
     // Fetch models once when the component mounts
-    useEffect(() => {
-        refreshconfig();
-    }, []);
+    //    useEffect(() => {
+    //        refreshconfig();
+    //    });
 
+    // Refresh config periodically
     useEffect(() => {
         refreshconfig();
         const interval = setInterval(() => {
@@ -147,12 +163,14 @@ const Config = ({ highlightedProject }) => {
         return () => clearInterval(interval);
     }, [editMode, showAddRow]);
 
+    // Highlight the project row if highlightedProject is provided
     useEffect(() => {
         if (highlightedProject) {
             setSelectedRow(highlightedProject); // Highlight the project row
         }
     }, [highlightedProject]);
 
+    // Get status icon based on status
     const getStatusIcon = (status) => {
         if (status === "up") {
             return <span style={{ color: 'green' }}>⬤</span>;
@@ -163,6 +181,7 @@ const Config = ({ highlightedProject }) => {
         }
     };
 
+    // Input styles
     const inputStyle = {
         maxWidth: '80px',
         border: '1px solid #ccc',
@@ -174,6 +193,7 @@ const Config = ({ highlightedProject }) => {
         padding: '2px'
     };
 
+    // Button row styles
     const buttonRowStyle = {
         display: 'flex',
         justifyContent: 'space-between',
@@ -186,6 +206,7 @@ const Config = ({ highlightedProject }) => {
         margin: '0 5px'
     };
 
+    // Determine button disabled states
     const isEditDisabled = selectedRow ? myconfig[selectedRow]?.status !== 'down' : true;
     const isActionDisabled = !selectedRow;
     const isSaveDisabled = editMode !== selectedRow;
@@ -338,7 +359,7 @@ const Config = ({ highlightedProject }) => {
                         Chat
                     </button>
                 ) : (
-                    <a className="btn btn-info btn-sm" href={`/react/?project=${selectedRow}`} style={buttonStyle}>
+                    <a className="btn btn-info btn-sm" href={`/?project=${selectedRow}`} style={buttonStyle}>
                         Chat
                     </a>
                 )}

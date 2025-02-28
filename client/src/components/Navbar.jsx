@@ -4,7 +4,7 @@ function Navbar() {
   return (
     <nav className="navbar navbar-expand-sm navbar-light bg-light">
       <div className="container-fluid">
-        <a className="navbar-brand" href="/react/">
+        <a className="navbar-brand" href="/">
           RAGUI
         </a>
         <button
@@ -21,17 +21,17 @@ function Navbar() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <a className="nav-link" href="/react/directory">
+              <a className="nav-link" href="/directory">
                 Context
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/react/configuration">
+              <a className="nav-link" href="/configuration">
                 Configurations
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/react/settings">
+              <a className="nav-link" href="/settings">
                 Settings
               </a>
             </li>

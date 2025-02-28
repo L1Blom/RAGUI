@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from "react";
-import config from '../config.json'; // Import config.json
 import Config from "./Config";
 import Navbar from "./Navbar";
 
@@ -7,29 +6,11 @@ export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
 
-    var host = 'http://' + window.location.hostname + ':8000'
-    var config_server;
-    var config_port;
-    var myproject;
-    if (config.CONFIG_API) {
-        host = config.CONFIG_API;
-    }
-    if (config.CONFIG_SERVER) {
-        config_server = config.CONFIG_SERVER;
-    }
-    if (config.CONFIG_PORT) {
-        config_port = config.CONFIG_PORT;
-    }
-    if (config.CONFIG_PROJECT) {
-        myproject = config.CONFIG_PROJECT
-    }
-    var project = localStorage.getItem('project') || myproject || 'azure';
-    
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || '/';
+    var rag_service = process.env.REACT_APP_RAG_SERVER || config_server;
+    var project = localStorage.getItem('project') || 'azure';
 
     const initialSettings = {
-        CONFIG_API: {
-            value: host, type: 'string', prio: 'client' // Use value from config.json
-        },
         PROD_API: {
             value: '', type: 'string', prio: 'server'
         },
@@ -92,7 +73,7 @@ export const SettingsProvider = ({ children }) => {
     }
 
     async function fetchConfig(project) {
-        let api = `${settings.CONFIG_API.value}/get?project=${project}`;
+        let api = `${config_server}/get?project=${project}`;
         try {
             const response = await fetch(api);
             if (response.status !== 200) {
@@ -114,8 +95,8 @@ export const SettingsProvider = ({ children }) => {
                     console.log('Error config')
                     throw new Error('Could not access config server');
                 } else {
-                    let host = `${config_server}:${configResult.port}`
-                    let api = host+`/prompt/${project}/globals`;
+                    let host = `${rag_service}/${configResult.port}` 
+                    let api = host + `/prompt/${project}/globals`;
                     const dataResult = await fetchData(api);
                     if (!dataResult) {
                         console.log('Error data');
