@@ -6,8 +6,9 @@ export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
 
-    var config_server = process.env.REACT_APP_CONFIG_SERVER || '/';
-    var rag_service = process.env.REACT_APP_RAG_SERVER || config_server;
+    var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://localhost:'+config_port;
+    var rag_service = process.env.REACT_APP_RAG_SERVER || 'http://localhost';
     var project = localStorage.getItem('project') || 'azure';
 
     const initialSettings = {
@@ -95,8 +96,9 @@ export const SettingsProvider = ({ children }) => {
                     console.log('Error config')
                     throw new Error('Could not access config server');
                 } else {
-                    let host = `${rag_service}/${configResult.port}` 
-                    let api = host + `/prompt/${project}/globals`;
+                    let separator = process.env.REACT_APP_IN_DOCKER ? '/' : ':';
+                    let host = `${rag_service}${separator}${configResult.port}`
+                    let api = `${host}/prompt/${project}/globals`;
                     const dataResult = await fetchData(api);
                     if (!dataResult) {
                         console.log('Error data');

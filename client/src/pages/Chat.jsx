@@ -4,7 +4,6 @@ import Message from "../components/Message";
 import React, { useState, useContext, useEffect } from "react";
 import { SettingsContext } from "../components/SettingsContext";
 import { useLocation } from "react-router-dom";
-import myconfig from "../config.json";
 
 import "./Chat.css";
 
@@ -148,10 +147,7 @@ function Chat() {
     prompt_input.value = "";
     var position = "right_bubble";
     var data = null;
-    // The hostname is always the same as the config host.
-    // Legacy versions had a full server path for the RAG, but that is obsolete
-    let apihost = myconfig.PROD_API.split('/')
-    let api = `${apihost[0]}/${apihost[1]}/prompt/${settings.Project.value}`
+    let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}`
     if (mode === 'search') {
       api = `${api}/search`
     } else if (mode === 'image') {

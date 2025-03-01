@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 
 const Config = ({ highlightedProject }) => {
     // Determine the host URL
-    var config_server = process.env.REACT_APP_CONFIG_SERVER || '/';
+    var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';  
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://localhost:'+config_port;
 
     // State variables
     const [myconfig, setMyConfig] = useState({}); // Initialize as an object
@@ -159,7 +160,7 @@ const Config = ({ highlightedProject }) => {
             if (!editMode && !showAddRow) {
                 refreshconfig();
             }
-        }, 5000); // Adjusted to 10 seconds
+        }, 2000); // Adjusted to 2 seconds
         return () => clearInterval(interval);
     }, [editMode, showAddRow]);
 
