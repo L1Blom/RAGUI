@@ -171,8 +171,8 @@ button#send-it svg {
 }
 
 .page-content.expanded {
-    max-height: 1000px;
-    /* Large enough to display full content */
+    max-height: none;
+    /* Unlimited height */
 }
 
 .assistant-chat-body {
@@ -235,5 +235,9 @@ button#send-it svg {
 .send_it.disabled {
     pointer-events: none;
     opacity: 0.5;
+}
+
+.think {
+    font-style: italic;
 }
 

@@ -95,7 +95,8 @@ function Message(props) {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                p: ({ children }) => <>{children}</>
+                p: ({ children }) => <>{children}</>,
+                think: ({ children }) => <div className="think">{children}</div>,
               }}
             >
               {props.message}

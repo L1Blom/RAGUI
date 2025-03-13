@@ -45,6 +45,9 @@ export const SettingsProvider = ({ children }) => {
         Embedding: {
             value: '', type: 'string', prio: 'server'
         },
+        Prompt: {
+            value: '', type: 'string', prio: 'server'
+        },
         State: 'initial',
         timestamp: new Date().getTime()
     }
@@ -105,12 +108,15 @@ export const SettingsProvider = ({ children }) => {
                         throw new Error('Could not fetch data');
                     } else {
                         const savedSettings = JSON.parse(localStorage.getItem(project));
+                        
                         if (savedSettings &&
                             deepEqual(savedSettings, initialSettings) &&
                             savedSettings['timestamp'] === dataResult['timestamp'] &&
                             savedSettings['Project'].value === configResult['project']) {
                             setSettings(savedSettings);
                         } else {
+                            console.log('Updating settings');
+                            console.log(dataResult);
                             const updatedSettings = { ...settings };
                             Object.entries(dataResult).forEach(([key, value]) => {
                                 if (key in updatedSettings) {

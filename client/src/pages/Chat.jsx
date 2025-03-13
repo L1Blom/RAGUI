@@ -109,13 +109,14 @@ function Chat() {
   if (chatMessages.length > 2) {
     chat_scroll_up();
   }
+
   let last_message_counter = chatMessages.length - 1;
   function last_prompt() {
     var prompt_input = document.getElementById("chat-input");
     if (chatMessages.length < 2) {
       return;
     }
-    while (last_message_counter > 1) {
+    while (last_message_counter > 0) {
       if (chatMessages[last_message_counter].position === "right_bubble") {
         var last_message = chatMessages[last_message_counter].message;
         prompt_input.value = last_message;

@@ -9,6 +9,7 @@ import Clear from "../components/Clear";
 import Reload from "../components/Reload";
 import Chunk from "../components/Chunk";
 import Embeddings from "../components/Embeddings";
+import Prompt from "../components/Prompt";
 
 function Settings() {
 
@@ -46,6 +47,7 @@ function Settings() {
           <Reload />
           <Models />
           <Embeddings />
+          <Prompt />
         </tbody>
       </table>
     </div>
