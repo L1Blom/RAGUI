@@ -241,3 +241,16 @@ button#send-it svg {
     font-style: italic;
 }
 
+.collapsible-container {
+    margin: 10px 0;
+}
+
+.collapsible-header {
+    font-weight: bold;
+}
+
+.collapsible-content {
+    margin-top: 5px;
+    padding-left: 10px;
+}
+

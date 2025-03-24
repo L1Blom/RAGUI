@@ -6,9 +6,10 @@ export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
 
+    const hostname = window.location.hostname;
     var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';
-    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://localhost:'+config_port;
-    var rag_service = process.env.REACT_APP_RAG_SERVER || 'http://localhost';
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+hostname+':'+config_port;
+    var rag_service = process.env.REACT_APP_RAG_SERVER || hostname;
     var project = localStorage.getItem('project') || 'azure';
 
     const initialSettings = {
@@ -100,7 +101,7 @@ export const SettingsProvider = ({ children }) => {
                     throw new Error('Could not access config server');
                 } else {
                     let separator = process.env.REACT_APP_IN_DOCKER ? '/' : ':';
-                    let host = `${rag_service}${separator}${configResult.port}`
+                    let host = `http://${rag_service}${separator}${configResult.port}`
                     let api = `${host}/prompt/${project}/globals`;
                     const dataResult = await fetchData(api);
                     if (!dataResult) {
@@ -108,15 +109,13 @@ export const SettingsProvider = ({ children }) => {
                         throw new Error('Could not fetch data');
                     } else {
                         const savedSettings = JSON.parse(localStorage.getItem(project));
-                        
-                        if (savedSettings &&
-                            deepEqual(savedSettings, initialSettings) &&
+                        if (savedSettings && !deepEqual(savedSettings, initialSettings)) {
+                            setSettings(initialSettings);
+                        } else if (savedSettings &&
                             savedSettings['timestamp'] === dataResult['timestamp'] &&
                             savedSettings['Project'].value === configResult['project']) {
                             setSettings(savedSettings);
                         } else {
-                            console.log('Updating settings');
-                            console.log(dataResult);
                             const updatedSettings = { ...settings };
                             Object.entries(dataResult).forEach(([key, value]) => {
                                 if (key in updatedSettings) {

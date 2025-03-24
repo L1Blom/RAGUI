@@ -31,7 +31,6 @@ function Prompt() {
 
         const encodedValue = encodeURIComponent(value);                     // Encode the value to make it URL safe
         const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/systemprompt?systemprompt=${encodedValue}`; // Construct the API URL
-        console.log(api);
         fetch(api)                                                          // Fetch the API
             .then((response) => {                                           // Handle the API response
                 if (!response.ok) {                                         // If the response is not OK (HTTP 200)

@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 
 const Config = ({ highlightedProject }) => {
     // Determine the host URL
+    const host = window.location.hostname;
     var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';  
-    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://localhost:'+config_port;
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+host+':'+config_port;
 
     // State variables
     const [myconfig, setMyConfig] = useState({}); // Initialize as an object

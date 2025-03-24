@@ -2,7 +2,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useState, useContext } from "react";
-import { SettingsContext } from "./SettingsContext";  
+import { SettingsContext } from "./SettingsContext";
 
 function Message(props) {
   const { settings } = useContext(SettingsContext);
@@ -14,6 +14,50 @@ function Message(props) {
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   const toggleContentExpansion = () => {
     setIsContentExpanded(!isContentExpanded);
+  };
+
+  const format = (message) => {
+    if (props.position === "right_bubble") {
+      return props.message
+    }
+    const match = message.match(/<think>(.*?)<\/think>/sg);
+    if (match) {
+      const reasoning = match
+        .map(item => item.replace(/<think>/, "")
+          .replace(/<\/think>/, ""))
+        .join(' ');
+      const remainingMessage = message.replace(/<think>.*?<\/think>/sg, "");
+      return (
+        <div>
+          <div className="collapsible-container">
+            <div
+              className="collapsible-header"
+              onClick={(e) => {
+                const content = e.target.nextElementSibling;
+                content.style.display = content.style.display === "none" ? "block" : "none";
+              }}
+              style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+            >
+              Reasoning
+            </div>
+            <div className="collapsible-content" style={{ display: "none", fontStyle: "italic" }}>
+              Reasoning: {reasoning}
+            </div>
+          </div>
+          <div>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {remainingMessage}
+            </ReactMarkdown>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {message}
+        </ReactMarkdown>
+      );
+    }
   };
 
   const rows = () => {
@@ -36,7 +80,7 @@ function Message(props) {
             if (metadata.page_number !== undefined) {
               page = metadata.page_number
             }
-            
+
             if (typeof page === 'number') {
               page = parseInt(page) + 1
               tpage = 'Page ' + page + ' from: '
@@ -67,7 +111,7 @@ function Message(props) {
                     <td>
                       <div className={`page-content ${isContentExpanded ? "expanded" : "collapsed"
                         }`}><ReactMarkdown>{page_content}</ReactMarkdown></div>
-                      
+
                     </td>
                   </tr>
                   <tr>
@@ -92,15 +136,8 @@ function Message(props) {
         <div className="text_message">
           {data ?
             rows() :
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                p: ({ children }) => <>{children}</>,
-                think: ({ children }) => <div className="think">{children}</div>,
-              }}
-            >
-              {props.message}
-            </ReactMarkdown>}
+            format(props.message)
+          }
         </div>
       </div>
       <div className="clear"></div>
