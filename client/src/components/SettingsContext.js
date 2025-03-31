@@ -11,7 +11,6 @@ export const SettingsProvider = ({ children }) => {
     var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+hostname+':'+config_port;
     var rag_service = process.env.REACT_APP_RAG_SERVER || hostname;
     var project = localStorage.getItem('project') || 'azure';
-
     const initialSettings = {
         PROD_API: {
             value: '', type: 'string', prio: 'server'
@@ -27,6 +26,9 @@ export const SettingsProvider = ({ children }) => {
         },
         Score: {
             value: 0.2, type: 'float', prio: 'client'
+        },
+        Tokens: {
+            value: 512, type: 'number', prio: 'server'
         },
         NoChunks: {
             value: 0, type: 'number', prio: 'server'
@@ -101,7 +103,8 @@ export const SettingsProvider = ({ children }) => {
                     throw new Error('Could not access config server');
                 } else {
                     let separator = process.env.REACT_APP_IN_DOCKER ? '/' : ':';
-                    let host = `http://${rag_service}${separator}${configResult.port}`
+                    let protocol = process.env.REACT_APP_IN_DOCKER ? '' : 'http://';
+                    let host = `${protocol}${rag_service}${separator}${configResult.port}`
                     let api = `${host}/prompt/${project}/globals`;
                     const dataResult = await fetchData(api);
                     if (!dataResult) {

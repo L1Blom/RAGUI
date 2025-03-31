@@ -10,6 +10,7 @@ import Reload from "../components/Reload";
 import Chunk from "../components/Chunk";
 import Embeddings from "../components/Embeddings";
 import Prompt from "../components/Prompt";
+import Tokens from "../components/Tokens";
 
 function Settings() {
 
@@ -40,6 +41,7 @@ function Settings() {
             <td></td>
           </tr>
           <Temperature />
+          <Tokens />
           <Similar />
           <Score />
           <Chunk />

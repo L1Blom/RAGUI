@@ -8,10 +8,10 @@ import { useLocation } from "react-router-dom";
 import "./Chat.css";
 
 function Chat() {
-  var config_server = process.env.REACT_APP_CONFIG_SERVER || '/';
-  var rag_service = process.env.REACT_APP_RAG_SERVER || config_server;
-  var project = localStorage.getItem('project') || 'azure';
-
+  const hostname = window.location.hostname;
+  var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';
+  var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+hostname+':'+config_port;
+  var rag_service = process.env.REACT_APP_RAG_SERVER || hostname;
 
   // this function opens the chat
   const { settings, switchSettings } = useContext(SettingsContext);
