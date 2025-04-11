@@ -20,6 +20,7 @@ function Clear() {
     fetchData();
   };
 
+
   return (
     <>
       <tr className="settings_row">

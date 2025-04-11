@@ -10,7 +10,7 @@ export const SettingsProvider = ({ children }) => {
     var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';
     var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+hostname+':'+config_port;
     var rag_service = process.env.REACT_APP_RAG_SERVER || hostname;
-    var project = localStorage.getItem('project') || 'azure';
+    var project = sessionStorage.getItem('project') || 'azure';
     const initialSettings = {
         PROD_API: {
             value: '', type: 'string', prio: 'server'
@@ -154,7 +154,7 @@ export const SettingsProvider = ({ children }) => {
 
     useEffect(() => {
         if (settings.State === 'initialized') {
-            localStorage.setItem('project',project)
+            sessionStorage.setItem('project',project)
             localStorage.setItem(settings.Project.value, JSON.stringify(settings));
         }
     }, [settings]);
@@ -210,7 +210,7 @@ export const SettingsProvider = ({ children }) => {
                     localStorage.setItem(project, JSON.stringify(updatedInitialSettings)); // Store new settings in localStorage
                 }
             }
-            localStorage.setItem('project',project)
+            sessionStorage.setItem('project',project)
             setStop(false); // Reset stop to false to re-run useEffect
         }
     };

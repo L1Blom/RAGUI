@@ -88,7 +88,7 @@ function Chat() {
   }
 
   function clearMessages() {
-    localStorage.removeItem('messages-'+settings.Project.value);
+    localStorage.removeItem('messages-' + settings.Project.value);
     setChatMessages(initialMessage);
   }
 
