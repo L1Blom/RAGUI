@@ -253,13 +253,12 @@ function Chat() {
         <Navbar />
         <div className="small bg-light">
           Project: <b>{settings.Project.value} </b>
+          - Provider: <b>{settings.Provider.value} </b>
           - Model: <b>{settings.ModelText.value} </b>
           - Temperature: <b>{settings.Temperature.value} </b>
           - Similar: <b>{settings.Similar.value} </b>
-          - Score: <b>{settings.Score.value}</b>
-        </div>
-        <div className="small bg-light">
-          Chunk size: <b>{settings.ChunkSize.value} </b>
+          - Score: <b>{settings.Score.value} </b>
+          - Chunk size: <b>{settings.ChunkSize.value} </b>
           - Chunk overlap: <b>{settings.ChunkOverlap.value} </b>
           - # Chunks: <b>{settings.NoChunks.value}</b>
         </div>
