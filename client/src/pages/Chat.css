@@ -254,3 +254,54 @@ button#send-it svg {
     padding-left: 10px;
 }
 
+.media-hover {
+  transition: transform 0.3s ease, z-index 0.3s ease;
+  animation-duration: 3s;
+}
+
+.media-hover:hover {
+  transform: none; /* Disable scaling */
+  z-index: 10; /* Ensure it appears above other elements */
+  position: fixed; /* Fix position to viewport */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Full viewport width */
+  height: 85vmax; /* Full viewport height */
+  object-fit: contain; /* Ensure the media fits within the viewport */
+  background: rgba(0, 0, 0, 0.8); /* Optional: Add a background for better visibility */
+}
+
+.zoom-toggle {
+    display: none;
+}
+.zoom-toggle.checked {
+    width: 10vw;
+    height: 90vmax;
+}
+
+.media-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.media-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 90%;
+  height: 90%;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.media-container.fullscreen img,
+.media-container.fullscreen video {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
