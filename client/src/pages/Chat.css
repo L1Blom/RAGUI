@@ -254,23 +254,36 @@ button#send-it svg {
     padding-left: 10px;
 }
 
-.media-hover {
+.media-hover .media-ihover{
   transition: transform 0.3s ease, z-index 0.3s ease;
-  animation-duration: 3s;
 }
-
+  
 .media-hover:hover {
   transform: none; /* Disable scaling */
   z-index: 10; /* Ensure it appears above other elements */
   position: fixed; /* Fix position to viewport */
-  top: 0;
-  left: 0;
-  width: 100vw; /* Full viewport width */
-  height: 85vmax; /* Full viewport height */
+  top: 5%;
+  left: 5%;
+  right: 5%;
+  width: 90vw; /* Full viewport width */
+  height: 90vh; /* Full viewport height */
   object-fit: contain; /* Ensure the media fits within the viewport */
-  background: rgba(0, 0, 0, 0.8); /* Optional: Add a background for better visibility */
+  background: rgba(0, 0, 0, 0.75); /* Optional: Add a background for better visibility */
+  border: 5px solid #044054ae; /* Fix border property */
 }
-
+.media-ihover:hover {
+    transform: none; /* Disable scaling */
+    z-index: 10; /* Ensure it appears above other elements */
+    position: fixed; /* Fix position to viewport */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Full viewport width */
+    height: 85vmax; /* Full viewport height */
+    object-fit: contain; /* Ensure the media fits within the viewport */
+    background: rgba(255, 255, 255); /* Optional: Add a background for better visibility */
+    border: 5px solid rgba(0, 0, 0, 0.336); /* Fix border property */
+}
+  
 .zoom-toggle {
     display: none;
 }
@@ -303,5 +316,35 @@ button#send-it svg {
   max-width: 90%;
   max-height: 90%;
   object-fit: contain;
+}
+
+/* Responsive table for Config component */
+@media (max-width: 620px) {
+  .config-row th:nth-child(2),
+  .config-row th:nth-child(3),
+  .config-row th:nth-child(7),
+  .config-row td:nth-child(2),
+  .config-row td:nth-child(3),
+  .config-row td:nth-child(7) {
+    display: none; /* Hide Description, Port and Started columns */
+  }
+
+  .config-row {
+    width: 100%; /* Ensure the table fits the viewport */
+  }
+}
+
+/* Ensure buttons in the button row are responsive */
+@media (max-width: 620px) {
+  .button-row {
+    flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+    justify-content: center; /* Center buttons */
+  }
+
+  .button-row button,
+  .button-row a {
+    flex: 1 1 30%; /* Make buttons take up 45% of the row */
+    margin: 5px; /* Add spacing between buttons */
+  }
 }
 

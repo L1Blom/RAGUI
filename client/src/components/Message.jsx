@@ -53,7 +53,8 @@ function Message(props) {
         </div>
       );
     } else {
-      const match = message.match(/[\w_-]+\.(jpeg|jpg|png|gif|bmp|webp|mp4|avi|mov|wmv|flv|mkv)/sg);
+      const pattern = /[\w_-]+\.(jpeg|jpg|png|gif|bmp|webp|mp4|avi|mov|wmv|flv|mkv|mp3|wav|ogg|pdf|doc|ppt|xls|txt|docs|pptx|xlsx)/sg;
+      const match = message.match(pattern);
       if (match) {
         return (
           <label>
@@ -61,31 +62,31 @@ function Message(props) {
               remarkPlugins={[remarkGfm]} 
               rehypePlugins={[rehypeRaw]} // Enable raw HTML rendering
             >
-              {message.replace(/[\w_-]+\.(jpeg|jpg|png|gif|bmp|webp|mp4|avi|mov|wmv|flv|mkv)/sg, (match) => {
+              {message.replace(pattern, (match) => {
                 const [name, ext] = match.split('.');
                 if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv'].includes(ext)) {
-                  return `<video class="media-hover" width="40%" controls><source src="${api}/file?file=images/${match}" type="video/${ext}"></video>`;
+                  return `<video class="media-hover" width="80%" controls><source src="${api}/file?file=images/${match}" type="video/${ext}"></video>`;
                 }
                 if (['mp3', 'wav', 'ogg'].includes(ext)) {
-                  return `<audio class="media-hover" width="40%" controls><source src="${api}/file?file=images/${match}" type="audio/${ext}"></audio>`;
+                  return `<audio class="media-hover" width="80%" controls><source src="${api}/file?file=images/${match}" type="audio/${ext}"></audio>`;
                 }
                 if (ext === 'pdf') {
-                  return `<iframe class="media-hover" width="40%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
+                  return `<iframe class="media-ihover" width="80%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
                 }
                 if (['docx', 'doc'].includes(ext)) {
-                  return `<iframe class="media-hover" width="40%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
+                  return `<iframe class="media-ihover" width="80%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
                 }
                 if (['pptx', 'ppt'].includes(ext)) {
-                  return `<iframe class="media-hover" width="40%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
+                  return `<iframe class="media-ihover" width="80%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
                 }
                 if (['xlsx', 'xls'].includes(ext)) {
-                  return `<iframe class="media-hover" width="40%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
+                  return `<iframe class="media-ihover" width="80%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
                 }
                 if (ext === 'txt') {
-                  return `<iframe class="media-hover" width="40%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
+                  return `<iframe class="media-ihover" width="80%" height="500px" src="${api}/file?file=${match}" title="${name}"></iframe>`;
                 }
                 if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
-                  return `<img class="media-hover" src="${api}/file?file=images/${match}" alt="${name}" title="${name}" width="40%" />`;
+                  return `<img class="media-hover" src="${api}/file?file=images/${match}" alt="" title="${name}" width="80%" />`;
                 }
                 return match; // Return the original match if no condition is met
               })}

@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 const Config = ({ highlightedProject }) => {
     // Determine the host URL
     const host = window.location.hostname;
-    var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';  
-    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+host+':'+config_port;
+    var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';
+    var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://' + host + ':' + config_port;
 
     // State variables
     const [myconfig, setMyConfig] = useState({}); // Initialize as an object
     const [editMode, setEditMode] = useState(null); // Track which row is in edit mode
     const [editData, setEditData] = useState({}); // Store data being edited
-    const [newRowData, setNewRowData] = useState({ project: '', description: '', port: '', provider: 'OPENAI', llm:'' }); // Store data for new row with default provider
+    const [newRowData, setNewRowData] = useState({ project: '', description: '', port: '', provider: 'OPENAI', llm: '' }); // Store data for new row with default provider
     const [selectedRow, setSelectedRow] = useState(null); // Track selected row
     const [showAddRow, setShowAddRow] = useState(false); // Track if add row input fields should be shown
 
@@ -109,7 +109,7 @@ const Config = ({ highlightedProject }) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                setNewRowData({ project: '', description: '', port: '', provider: 'OPENAI', llm:'', }); // Reset new row data with default provider
+                setNewRowData({ project: '', description: '', port: '', provider: 'OPENAI', llm: '', }); // Reset new row data with default provider
                 setShowAddRow(false); // Hide the add row input fields
                 refreshconfig(); // Refresh the config after adding
             })
@@ -224,7 +224,15 @@ const Config = ({ highlightedProject }) => {
         <div>
             <table className="config-row" border={1} width={'100%'}>
                 <thead>
-                    <tr><th>Project</th><th>Description</th><th>Port</th><th>Provider</th><th style={aligncenter}>LLM</th><th>Status</th><th>Started</th></tr>
+                    <tr>
+                        <th>Project</th>
+                        <th>Description</th>
+                        <th>Port</th>
+                        <th>Provider</th>
+                        <th style={aligncenter}>LLM</th>
+                        <th style={aligncenter}>Status</th>
+                        <th>Started</th>
+                        </tr>
                 </thead>
                 <tbody>
                     {Object.keys(myconfig).map((key, index) => {
@@ -363,8 +371,8 @@ const Config = ({ highlightedProject }) => {
                     </button>
                 )}
                 {!showAddRow && (
-                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(selectedRow)} disabled={isDeleteDisabled} style={buttonStyle}>
-                    Delete
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(selectedRow)} disabled={isDeleteDisabled} style={buttonStyle}>
+                        Delete
                     </button>
                 )}
                 {isChatDisabled ? (
