@@ -10,7 +10,7 @@ export const SettingsProvider = ({ children }) => {
     var config_port = process.env.REACT_APP_CONFIG_PORT || '8000';
     var config_server = process.env.REACT_APP_CONFIG_SERVER || 'http://'+hostname+':'+config_port;
     var rag_service = process.env.REACT_APP_RAG_SERVER || hostname;
-    var project = sessionStorage.getItem('project') || 'azure';
+    var project = sessionStorage.getItem('project') || 'template';
     const initialSettings = {
         PROD_API: {
             value: '', type: 'string', prio: 'server'

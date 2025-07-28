@@ -348,3 +348,17 @@ button#send-it svg {
   }
 }
 
+.status-dot.starting, .status-dot.stopping {
+  animation: blink-status-dot 1s linear infinite;
+}
+.status-dot.starting {
+  color: orange;
+}
+.status-dot.stopping {
+  color: #b22222;
+}
+@keyframes blink-status-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+

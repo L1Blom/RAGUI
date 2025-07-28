@@ -20,7 +20,7 @@ const Directory = () => {
 
     const file_action = (e, item) => {
         e.preventDefault();
-        const api = settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file=' + item + '&action=delete&mode='+ mode; 
+        const api = settings.PROD_API.value + '/prompt/' + settings.Project.value + '/context?file=' + item + '&action=delete&mode=' + mode;
         fetch(api).then((res) => res.json()).then((data) => {
             if (mode === "file") {
                 setFiles(data);
@@ -67,6 +67,18 @@ const Directory = () => {
     return (
         <div>
             <Navbar />
+            <div className="small bg-light">
+                Project: <b>{settings.Project.value} </b>
+                - Provider: <b>{settings.Provider.value} </b>
+                - Model: <b>{settings.ModelText.value} </b>
+                - Temperature: <b>{settings.Temperature.value} </b>
+                - Similar: <b>{settings.Similar.value} </b>
+                - Score: <b>{settings.Score.value} </b>
+                - Chunk size: <b>{settings.ChunkSize.value} </b>
+                - Chunk overlap: <b>{settings.ChunkOverlap.value} </b>
+                - # Chunks: <b>{settings.NoChunks.value}</b>
+            </div>
+
             <div style={{ margin: "10px 0" }}>
                 <button
                     className={`btn btn-sm ${mode === "file" ? "btn-primary" : "btn-secondary"}`}
@@ -152,7 +164,7 @@ const Directory = () => {
                                 <td colSpan={3}>No URLs found.</td>
                             </tr>
                             <Upload onUpload={refreshUrls} initialInputType={mode} />
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             )}

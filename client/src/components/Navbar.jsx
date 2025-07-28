@@ -26,13 +26,13 @@ function Navbar() {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/configuration">
-                Configurations
+              <a className="nav-link" href="/settings">
+                Settings
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/settings">
-                Settings
+              <a className="nav-link" href="/configuration">
+                Configurations
               </a>
             </li>
           </ul>

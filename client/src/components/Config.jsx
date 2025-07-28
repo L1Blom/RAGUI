@@ -38,14 +38,25 @@ const Config = ({ highlightedProject }) => {
 
     // Handle action click (start/stop)
     const handleActionClick = (key, action) => {
+        // Set status to transitional state before making the request
+        setMyConfig(prev => ({
+            ...prev,
+            [key]: {
+                ...prev[key],
+                status: action === "start" ? "starting" : "stopping"
+            }
+        }));
         const api = `${config_server}/${action}?project=${key}`;
-        fetch(api, { method: 'GET' })
-            .then((res) => res.json())
-            .then((data) => {
-                refreshconfig(); // Refresh the config after the action
-                setSelectedRow(key);
-            })
-            .catch((error) => console.error(`Error ${action}ing project:`, error));
+        // Do not call refreshconfig immediately, but after a delay to allow blinking
+        setTimeout(() => {
+            fetch(api, { method: 'GET' })
+                .then((res) => res.json())
+                .then((data) => {
+                    refreshconfig(); // Refresh the config after the action
+                    setSelectedRow(key);
+                })
+                .catch((error) => console.error(`Error ${action}ing project:`, error));
+        }, 1500); // Wait 1.5 seconds before making the request
     };
 
     // Handle edit click
@@ -61,7 +72,8 @@ const Config = ({ highlightedProject }) => {
             return;
         }
         const api = `${config_server}/set`;
-        const saveData = { ...editData, 'originalProject': key }; // Include original project name
+        // Always include the project code in the payload
+        const saveData = { ...editData, project: key, originalProject: key };
         await fetch(api, {
             method: 'POST',
             headers: {
@@ -176,6 +188,14 @@ const Config = ({ highlightedProject }) => {
 
     // Get status icon based on status
     const getStatusIcon = (status) => {
+        // Blinking for transitional states
+        if (status === "starting" || status === "stopping") {
+            return (
+                <span className={`status-dot ${status}`}>
+                    ⬤
+                </span>
+            );
+        }
         if (status === "up") {
             return <span style={{ color: 'green' }}>⬤</span>;
         } else if (status === "down") {
@@ -243,12 +263,14 @@ const Config = ({ highlightedProject }) => {
                             <tr key={index} onClick={() => handleRowClick(key)} style={{ backgroundColor: isSelected ? '#f0f0f0' : 'transparent' }}>
                                 <td>
                                     {isEditing ? (
+                                        // Show project code as read-only in edit mode
                                         <input
                                             type="text"
                                             name="project"
-                                            value={editData.project}
-                                            onChange={handleInputChange}
-                                            style={inputStyle}
+                                            value={editData.project || key}
+                                            readOnly
+                                            style={{ ...inputStyle, background: "#eee", color: "#888" }}
+                                            tabIndex={-1}
                                         />
                                     ) : (
                                         key
