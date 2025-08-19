@@ -9,7 +9,9 @@ COPY package.json /install
 
 # Install dependencies
 RUN npm install
+
 ENV NODE_PATH=/install/node_modules
+
 WORKDIR /app
 
 # Copy the rest of the application code
