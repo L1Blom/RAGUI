@@ -2,13 +2,15 @@
 FROM node:14
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /install
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY package.json /install
 
 # Install dependencies
 RUN npm install
+ENV NODE_PATH=/install/node_modules
+WORKDIR /app
 
 # Copy the rest of the application code
 COPY . .
