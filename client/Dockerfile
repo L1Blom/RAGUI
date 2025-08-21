@@ -1,18 +1,14 @@
 # Use an official Node.js runtime as a parent image
-FROM node:14
+FROM node:18
 
 # Set the working directory
-WORKDIR /install
+WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
-COPY package.json /install
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
-
-ENV NODE_PATH=/install/node_modules
-
-WORKDIR /app
 
 # Copy the rest of the application code
 COPY . .
