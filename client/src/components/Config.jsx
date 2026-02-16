@@ -15,7 +15,7 @@ const Config = ({ highlightedProject }) => {
     const [showAddRow, setShowAddRow] = useState(false); // Track if add row input fields should be shown
 
     // Provider options
-    const providerOptions = ["OPENAI", "AZURE", "GROQ", "OLLAMA"];
+    const providerOptions = ["OPENAI", "AZURE", "GROQ", "OLLAMA","NEBUL"];
 
     // Function to refresh the configuration
     const refreshconfig = () => {
