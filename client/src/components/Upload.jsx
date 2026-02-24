@@ -4,12 +4,12 @@ import { SettingsContext } from "./SettingsContext";
 const Upload = ({ onUpload, initialInputType = "file" }) => {
   const { settings } = useContext(SettingsContext);
   const [inputType, setInputType] = useState(initialInputType);
-  const [data, setData] = useState(initialInputType === "file" ? "Upload file" : "Upload URL");
+  const [data, setData] = useState(initialInputType === "file" ? "Upload file" : initialInputType === "url" ? "Upload URL" : "Upload X-post");
   const [existingUrls, setExistingUrls] = useState([]);
 
-  // Fetch existing URLs when in URL mode
+  // Fetch existing URLs when in URL or X-post mode
   React.useEffect(() => {
-    if (inputType === "url") {
+    if (inputType === "url" || inputType === "xpost") {
       const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/context?file=urls.json&action=list&mode=url`;
       fetch(api)
         .then((res) => res.json())
@@ -26,9 +26,9 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
 
   const handleFileSubmit = (e) => {
     e.preventDefault();
-    setData(inputType === "file" ? "Uploading file..." : "Uploading URL...");
-
+    
     if (inputType === "file") {
+      setData("Uploading file...");
       console.log("File upload initiated");
       let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/upload`;
       const formData = new FormData(e.target);
@@ -45,7 +45,8 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
         .catch((error) => {
           console.error("Error uploading the file:", error);
         });
-    } else {
+    } else if (inputType === "url") {
+      setData("Uploading URL...");
       console.log("URL upload initiated");
       const url = e.target.url.value;
       if (!isSafeUrl(url)) {
@@ -67,18 +68,62 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
         .catch((error) => {
           console.error("Error uploading the URL:", error);
         });
+    } else if (inputType === "xpost") {
+      setData("Uploading X-post...");
+      console.log("X-post upload initiated");
+      const url = e.target.url.value;
+      if (!isValidXPostUrl(url)) {
+        setData("Invalid X-post URL. Use format: https://x.com/username/status/...");
+        return;
+      }
+      if (existingUrls.includes(url)) {
+        setData("This X-post has already been uploaded.");
+        return;
+      }
+      let api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/uploadx?url=${encodeURIComponent(url)}`;
+      fetch(api)
+        .then((response) => response.text())
+        .then((data) => {
+          setData(data);
+          e.target.reset();
+          if (onUpload) onUpload();
+        })
+        .catch((error) => {
+          console.error("Error uploading the X-post:", error);
+        });
     }
   };
 
   const handleToggle = () => {
-    setInputType(inputType === "file" ? "url" : "file");
-    setData(inputType === "file" ? "Upload URL" : "Upload file");
+    // Cycle through: file -> url -> xpost -> file
+    const types = ["file", "url", "xpost"];
+    const currentIndex = types.indexOf(inputType);
+    const nextIndex = (currentIndex + 1) % types.length;
+    const nextType = types[nextIndex];
+    
+    setInputType(nextType);
+    setData(nextType === "file" ? "Upload file" : nextType === "url" ? "Upload URL" : "Upload X-post");
   };
 
   const isSafeUrl = (url) => {
     try {
       const parsed = new URL(url);
-      return parsed.protocol === "https:"; //&& parsed.hostname.endsWith("trusted.com");
+      return parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const isValidXPostUrl = (url) => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:") return false;
+      const hostname = parsed.hostname.toLowerCase();
+      // Accept both x.com and twitter.com
+      if (!hostname.endsWith("x.com") && !hostname.endsWith("twitter.com")) return false;
+      // Check for /status/ in the path
+      const path = parsed.pathname.toLowerCase();
+      return path.includes("/status/");
     } catch {
       return false;
     }
@@ -104,7 +149,7 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
             className="form-control"
             type="url"
             id="formUrl"
-            placeholder="Paste file URL here"
+            placeholder={inputType === "xpost" ? "Paste X-post URL here (https://x.com/.../status/...)" : "Paste file URL here"}
             required
           />
           </form>
@@ -120,7 +165,7 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
           onClick={handleToggle}
           style={{ marginLeft: "5px" }}
         >
-          {inputType === "file" ? "Switch to URL" : "Switch to File"}
+          {inputType === "file" ? "Switch to URL" : inputType === "url" ? "Switch to X-post" : "Switch to File"}
         </button>
       </td>
     </tr>
