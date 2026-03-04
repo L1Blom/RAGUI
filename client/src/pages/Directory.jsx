@@ -6,15 +6,18 @@ import Upload from "../components/Upload";
 const Directory = () => {
     const [files, setFiles] = useState({});
     const [urls, setUrls] = useState({});
-    const [mode, setMode] = useState("file"); // "file" or "url"
+    const [xposts, setXposts] = useState([]);
+    const [mode, setMode] = useState("file"); // "file", "url", or "x"
     const { settings } = useContext(SettingsContext);
 
     // Helper to refresh current mode
     const refreshCurrent = () => {
         if (mode === "file") {
             refreshFiles();
-        } else {
+        } else if (mode === "url") {
             refreshUrls();
+        } else if (mode === "x") {
+            refreshXposts();
         }
     };
 
@@ -56,13 +59,29 @@ const Directory = () => {
             });
     }
 
+    const refreshXposts = () => {
+        const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/file?file=x.json`;
+        fetch(api)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("Fetched X-posts:", data);
+                setXposts(Array.isArray(data) ? data : []);
+            })
+            .catch((error) => {
+                setXposts([]);
+                console.error("Error fetching x.json:", error);
+            });
+    }
+
     useEffect(() => {
         if (mode === "file") {
             refreshFiles();
-        } else {
+        } else if (mode === "url") {
             refreshUrls();
+        } else if (mode === "x") {
+            refreshXposts();
         }
-    }, [mode]);
+    }, [mode, settings.PROD_API.value, settings.Project.value]);
 
     return (
         <div>
@@ -90,8 +109,15 @@ const Directory = () => {
                 <button
                     className={`btn btn-sm ${mode === "url" ? "btn-primary" : "btn-secondary"}`}
                     onClick={() => setMode("url")}
+                    style={{ marginRight: "5px" }}
                 >
                     URLs
+                </button>
+                <button
+                    className={`btn btn-sm ${mode === "x" ? "btn-primary" : "btn-secondary"}`}
+                    onClick={() => setMode("x")}
+                >
+                    X
                 </button>
             </div>
             {mode === "file" && files && files.type === 'folder' && (
@@ -152,18 +178,47 @@ const Directory = () => {
                     </table>
                 </div>
             )}
-            {mode === "url" && !Array.isArray(urls.items) && (
+            {mode === "x" && Array.isArray(xposts) && xposts.length > 0 && (
                 <div>
-                    <p>No URLs found.</p>
+                    X-posts:
+                    <table border={1} width={'100%'}>
+                        <thead>
+                            <tr><th>No</th><th>URL</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {xposts.map((url, idx) => (
+                                <tr key={idx}>
+                                    <td>{idx + 1}</td>
+                                    <td className="file-name">{typeof url === "string" ? url : url.name}</td>
+                                    <td>
+                                        <span style={{ display: 'flex', gap: '2px' }}>
+                                            <a className="btn btn-primary btn-sm" target="RAGUI" href={typeof url === "string"
+                                                ? url
+                                                : url.name}>View</a>
+                                            <form onSubmit={(e) => file_action(e, typeof url === "string" ? url : url.name)}>
+                                                <button id="delete" className="btn btn-primary btn-sm">Delete</button>
+                                            </form>
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                            <Upload onUpload={refreshXposts} initialInputType={mode} />
+                        </tbody>
+                    </table>
+                </div>
+            )}
+            {mode === "x" && (!Array.isArray(xposts) || xposts.length === 0) && (
+                <div>
+                    <p>No X-posts found.</p>
                     <table border={1} width={'100%'}>
                         <thead>
                             <tr><th>No</th><th>URL</th><th>Action</th></tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colSpan={3}>No URLs found.</td>
+                                <td colSpan={3}>No X-posts found.</td>
                             </tr>
-                            <Upload onUpload={refreshUrls} initialInputType={mode} />
+                            <Upload onUpload={refreshXposts} initialInputType={mode} />
                         </tbody>
                     </table>
                 </div>
