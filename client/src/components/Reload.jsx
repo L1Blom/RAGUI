@@ -20,12 +20,12 @@ function Reload() {
   
   return (
     <tr className="settings_row">
-      <td>Reload documents</td>
+      <td>Rebuild index (clears and reloads)</td>
       <td>{data}</td>
       <td>
         <form onSubmit={invoke_reload}>
           <div className="form-group">
-            <button className="btn btn-primary btn-sm" type="submit">Reload</button>
+            <button className="btn btn-primary btn-sm" type="submit">Rebuild</button>
           </div>
         </form>
         </td>

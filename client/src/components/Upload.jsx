@@ -6,6 +6,7 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
   const [urlData, setUrlData] = useState("Upload URL");
   const [xpostData, setXpostData] = useState("Upload X-post");
   const [batchData, setBatchData] = useState("Batch upload X-posts");
+  const [xpostSummary, setXpostSummary] = useState(null);
   const [existingUrls, setExistingUrls] = useState([]);
   const [existingXposts, setExistingXposts] = useState([]);
 
@@ -26,18 +27,40 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
 
   // Fetch existing X-posts from x.json
   React.useEffect(() => {
-    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/context?file=x.json&action=list&mode=url`;
+    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/file?file=x.json`;
     fetch(api)
       .then((res) => res.json())
       .then((result) => {
-        if (Array.isArray(result.items)) {
-          setExistingXposts(result.items.map(url => typeof url === "string" ? url : url.name));
+        if (Array.isArray(result)) {
+          setExistingXposts(result.map((url) => (typeof url === "string" ? url : url.name)).filter(Boolean));
+        } else if (Array.isArray(result.items)) {
+          setExistingXposts(result.items.map((url) => (typeof url === "string" ? url : url.name)).filter(Boolean));
         } else {
           setExistingXposts([]);
         }
       })
       .catch(() => setExistingXposts([]));
   }, [settings.PROD_API.value, settings.Project.value]);
+
+  const parseXpostSummary = (message) => {
+    if (typeof message !== "string") return null;
+
+    const tweetMatch = message.match(/tweet_id=(\d+)/);
+    const imagesMatch = message.match(/images=(\d+)/);
+    const videosMatch = message.match(/videos=(\d+)/);
+    const audioMatch = message.match(/audio=(\d+)/);
+
+    if (!tweetMatch && !imagesMatch && !videosMatch && !audioMatch) {
+      return null;
+    }
+
+    return {
+      tweetId: tweetMatch ? tweetMatch[1] : null,
+      images: imagesMatch ? Number(imagesMatch[1]) : null,
+      videos: videosMatch ? Number(videosMatch[1]) : null,
+      audio: audioMatch ? Number(audioMatch[1]) : null,
+    };
+  };
 
   const handleFileSubmit = (e) => {
     e.preventDefault();
@@ -91,6 +114,7 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
     e.preventDefault();
     
     setXpostData("Uploading X-post...");
+    setXpostSummary(null);
     console.log("X-post upload initiated");
     const url = e.target.xpost.value;
     if (!isValidXPostUrl(url)) {
@@ -106,6 +130,7 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
       .then((response) => response.text())
       .then((data) => {
         setXpostData(data);
+        setXpostSummary(parseXpostSummary(data));
         e.target.reset();
         if (onUpload) onUpload();
       })
@@ -220,7 +245,17 @@ const Upload = ({ onUpload, initialInputType = "file" }) => {
 
       {/* X-post Upload Row */}
       <tr>
-        <td className="upload-status">{xpostData}</td>
+        <td className="upload-status">
+          <div>{xpostData}</div>
+          {xpostSummary && (
+            <div className="mt-1 d-flex" style={{ gap: "4px", flexWrap: "wrap" }}>
+              {xpostSummary.tweetId && <span className="badge bg-secondary">tweet_id={xpostSummary.tweetId}</span>}
+              {xpostSummary.images !== null && <span className="badge bg-info text-dark">images={xpostSummary.images}</span>}
+              {xpostSummary.videos !== null && <span className="badge bg-primary">videos={xpostSummary.videos}</span>}
+              {xpostSummary.audio !== null && <span className="badge bg-warning text-dark">audio={xpostSummary.audio}</span>}
+            </div>
+          )}
+        </td>
         <td>
           <form id="uploadFormXpost" encType="application/json" onSubmit={handleXpostSubmit}>
             <input
