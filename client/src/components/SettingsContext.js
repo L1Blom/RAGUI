@@ -201,10 +201,13 @@ export const SettingsProvider = ({ children }) => {
                     console.log('Error config')
                     throw new Error('Could not access config server');
                 } else {
+                    let separator = process.env.REACT_APP_IN_DOCKER ? '/' : ':';
+                    let protocol = process.env.REACT_APP_IN_DOCKER ? '' : 'http://';
+                    let host = `${protocol}${rag_service}${separator}${configResult.port}`;
                     const updatedInitialSettings = {
                         ...initialSettings,
                         Project: { ...initialSettings.Project, value: project },
-                        PROD_API: { ...initialSettings.PROD_API, value: `${config_server}:${configResult.port}` }
+                        PROD_API: { ...initialSettings.PROD_API, value: host }
                     };
                     setSettings(updatedInitialSettings);
                     localStorage.setItem(project, JSON.stringify(updatedInitialSettings)); // Store new settings in localStorage
