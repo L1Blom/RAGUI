@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Config = ({ highlightedProject }) => {
     // Determine the host URL
@@ -402,9 +403,9 @@ const Config = ({ highlightedProject }) => {
                         Chat
                     </button>
                 ) : (
-                    <a className="btn btn-info btn-sm" href={`/?project=${selectedRow}`} style={buttonStyle}>
+                    <Link className="btn btn-info btn-sm" to={`/?project=${selectedRow}`} style={buttonStyle}>
                         Chat
-                    </a>
+                    </Link>
                 )}
                 {!showAddRow && (
                     <button className="btn btn-success btn-sm" onClick={handleAddButtonClick} style={buttonStyle}>
