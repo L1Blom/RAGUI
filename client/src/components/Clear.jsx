@@ -24,7 +24,7 @@ function Clear() {
   return (
     <>
       <tr className="settings_row">
-        <td>Clear history</td><td>{data}</td>
+        <td>Clear chat history</td><td>{data}</td>
         <td><form onSubmit={invoke_clear}>
           <div className="form-group">
             <button className="btn btn-primary btn-sm" type="submit">Clear</button>

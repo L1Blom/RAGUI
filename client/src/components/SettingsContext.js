@@ -112,18 +112,18 @@ export const SettingsProvider = ({ children }) => {
                         throw new Error('Could not fetch data');
                     } else {
                         const savedSettings = JSON.parse(localStorage.getItem(project));
-                        if (savedSettings && !deepEqual(savedSettings, initialSettings)) {
-                            setSettings(initialSettings);
-                        } else if (savedSettings &&
+                        if (savedSettings &&
                             savedSettings['timestamp'] === dataResult['timestamp'] &&
                             savedSettings['Project'].value === configResult['project']) {
+                            // Cache hit: localStorage is in sync with the running server.
                             setSettings(savedSettings);
                         } else {
-                            const updatedSettings = { ...settings };
+                            // Always load from server (covers fresh start, rebuild, project switch).
+                            const updatedSettings = { ...initialSettings };
                             Object.entries(dataResult).forEach(([key, value]) => {
                                 if (key in updatedSettings) {
                                     if (key !== 'State') {
-                                        if (settings[key].prio === 'server') {
+                                        if (initialSettings[key].prio === 'server') {
                                             if (updatedSettings[key].type === 'number') {
                                                 value = Number(value);
                                             } else if (updatedSettings[key].type === 'float') {
