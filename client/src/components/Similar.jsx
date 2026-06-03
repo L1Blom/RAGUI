@@ -38,7 +38,7 @@ function Similar() {
                     step="1"
                     type="range"
                     min="0"
-                    max="10"
+                    max="200"
                 />
             </td>
         </tr>

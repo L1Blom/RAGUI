@@ -1,7 +1,22 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import { SettingsContext } from "./SettingsContext";
 
 function Navbar() {
+  const { settings } = useContext(SettingsContext);
+  const [hasXPosts, setHasXPosts] = useState(false);
+
+  const apiBase = settings.PROD_API?.value;
+  const project = settings.Project?.value;
+
+  useEffect(() => {
+    if (!apiBase || !project) { setHasXPosts(false); return; }
+    fetch(`${apiBase}/prompt/${project}/xposts`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setHasXPosts(Array.isArray(data) && data.length > 0))
+      .catch(() => setHasXPosts(false));
+  }, [apiBase, project]);
+
   return (
     <nav className="navbar navbar-expand-sm navbar-light bg-light">
       <div className="container-fluid">
@@ -36,6 +51,13 @@ function Navbar() {
                 Configurations
               </Link>
             </li>
+            {hasXPosts && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/xposts">
+                  X Posts
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>

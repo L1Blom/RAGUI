@@ -18,6 +18,8 @@ function Chat() {
   const [urlProcessed, setUrlProcessed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null);
+  const [hasXPosts, setHasXPosts] = useState(false);
+  const [xPostsMode, setXPostsMode] = useState(false);
   const location = useLocation();
 
   const initialMessage = [{
@@ -39,6 +41,16 @@ function Chat() {
     }
     return savedMessages.length === 0 ? initialMessage : savedMessages;
   });
+
+  useEffect(() => {
+    const apiBase = settings.PROD_API?.value;
+    const project = settings.Project?.value;
+    if (!apiBase || !project) { setHasXPosts(false); return; }
+    fetch(`${apiBase}/prompt/${project}/xposts`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setHasXPosts(Array.isArray(data) && data.length > 0))
+      .catch(() => setHasXPosts(false));
+  }, [settings.PROD_API?.value, settings.Project?.value]);
 
   useEffect(() => {
     const processUrlParams = async () => {
@@ -137,6 +149,55 @@ function Chat() {
     } catch (_) {
       return false;
     }
+  }
+
+  async function askAIStream() {
+    const prompt_input = document.getElementById("chat-input");
+    const prompt = prompt_input.value.trim();
+    if (!prompt) return;
+    prompt_input.value = "";
+    setIsLoading(true);
+
+    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/xposts/chat`;
+    const baseMessages = [
+      ...chatMessages,
+      { position: "right_bubble", message: prompt },
+    ];
+    setChatMessages([...baseMessages, { position: "left_bubble", message: "▋" }]);
+    chat_scroll_up();
+
+    let fullText = "";
+    try {
+      const response = await fetch(api, {
+        method: "POST",
+        body: "prompt=" + encodeURIComponent(prompt),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          const remaining = decoder.decode(); // flush buffered bytes
+          if (remaining) {
+            fullText += remaining;
+            setChatMessages([...baseMessages, { position: "left_bubble", message: fullText }]);
+          }
+          break;
+        }
+        fullText += decoder.decode(value, { stream: true });
+        const snapshot = fullText;
+        setChatMessages([...baseMessages, { position: "left_bubble", message: snapshot }]);
+        chat_scroll_up();
+      }
+    } catch (err) {
+      console.error(err);
+      fullText = "Error: request failed.";
+    }
+    const finalMsgs = [...baseMessages, { position: "left_bubble", message: fullText }];
+    setChatMessages(finalMsgs);
+    saveMessages(finalMsgs);
+    setIsLoading(false);
   }
 
   function askAI(mode) {
@@ -288,11 +349,22 @@ function Chat() {
               maxLength="400"
               disabled={isLoading}
             />}
+            {hasXPosts && (
+              <button
+                onClick={() => setXPostsMode(m => !m)}
+                title={xPostsMode ? "X Posts mode: ON — click to switch to RAG mode" : "Switch to X Posts mode (full context)"}
+                id="send-it"
+                className="send_it"
+                style={{ fontSize: '22px', opacity: xPostsMode ? 1 : 0.35 }}
+              >
+                𝕏
+              </button>
+            )}
             <button
-              onClick={() => !isLoading && askAI('prompt')}
+              onClick={() => !isLoading && (xPostsMode ? askAIStream() : askAI('prompt'))}
               href="#send_message"
               id="send-it"
-              title="Process prompt!"
+              title={xPostsMode ? "Ask about X Posts (full context)" : "Process prompt!"}
               className={`send_it ${isLoading ? 'disabled' : ''}`}
             >
               <svg viewBox="0 2 28 28" fill="none">

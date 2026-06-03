@@ -7,6 +7,7 @@ import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
 import Directory from "./pages/Directory";
 import Configuration from "./pages/Configuration";
+import XPosts from "./pages/XPosts";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/directory" element={<Directory />} />
         <Route path="/configuration" element={<Configuration />} />
+        <Route path="/xposts" element={<XPosts />} />
       </Routes>
     </BrowserRouter>
   );
