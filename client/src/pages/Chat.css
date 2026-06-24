@@ -70,6 +70,39 @@
     font-weight: bold;
 }
 
+.inline-post-img {
+    float: right;
+    max-width: 35%;
+    margin: 4px 0 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.text_message::after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.msg-download-btn {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 0;
+    transition: color 0.15s, background 0.15s;
+}
+
+.msg-download-btn:hover {
+    color: #333;
+    background: #eee;
+}
+
 .start-chat {
     flex: 1;
     overflow-y: visible;

@@ -158,7 +158,10 @@ function Chat() {
     prompt_input.value = "";
     setIsLoading(true);
 
-    const api = `${settings.PROD_API.value}/prompt/${settings.Project.value}/xposts/chat`;
+    const base = `${settings.PROD_API.value}/prompt/${settings.Project.value}`;
+    const api = xPostsMode
+      ? `${base}/xposts/chat`
+      : `${base}/stream`;
     const baseMessages = [
       ...chatMessages,
       { position: "right_bubble", message: prompt },
@@ -181,12 +184,13 @@ function Chat() {
           const remaining = decoder.decode(); // flush buffered bytes
           if (remaining) {
             fullText += remaining;
-            setChatMessages([...baseMessages, { position: "left_bubble", message: fullText }]);
+            const displayText = fullText.split("\n<<<ENHANCED_ANSWER>>>\n")[0];
+            setChatMessages([...baseMessages, { position: "left_bubble", message: displayText }]);
           }
           break;
         }
         fullText += decoder.decode(value, { stream: true });
-        const snapshot = fullText;
+        const snapshot = fullText.split("\n<<<ENHANCED_ANSWER>>>\n")[0];
         setChatMessages([...baseMessages, { position: "left_bubble", message: snapshot }]);
         chat_scroll_up();
       }
@@ -194,7 +198,14 @@ function Chat() {
       console.error(err);
       fullText = "Error: request failed.";
     }
-    const finalMsgs = [...baseMessages, { position: "left_bubble", message: fullText }];
+    const enhancedParts = fullText.split("\n<<<ENHANCED_ANSWER>>>\n");
+    let cleanText;
+    if (enhancedParts.length > 1) {
+      cleanText = enhancedParts[1];
+    } else {
+      cleanText = enhancedParts[0].replace(/^\[Analyzing \d+\/\d+\.\.\.\]\n?/gm, "");
+    }
+    const finalMsgs = [...baseMessages, { position: "left_bubble", message: cleanText }];
     setChatMessages(finalMsgs);
     saveMessages(finalMsgs);
     setIsLoading(false);
@@ -260,8 +271,6 @@ function Chat() {
       fetch(api, postData)
         .then((response) => {
           switch (mode) {
-            case 'prompt':
-              return response.text();
             case 'image':
               return response.text();
             case 'search':
@@ -274,9 +283,6 @@ function Chat() {
           let myMessage = ""
           let data = null
           switch (mode) {
-            case 'prompt':
-              myMessage = resData;
-              break;
             case 'search':
               data = resData;
               break;
@@ -361,7 +367,7 @@ function Chat() {
               </button>
             )}
             <button
-              onClick={() => !isLoading && (xPostsMode ? askAIStream() : askAI('prompt'))}
+              onClick={() => !isLoading && askAIStream()}
               href="#send_message"
               id="send-it"
               title={xPostsMode ? "Ask about X Posts (full context)" : "Process prompt!"}

@@ -17,17 +17,44 @@ function Message(props) {
     setIsContentExpanded(!isContentExpanded);
   };
 
+  const downloadMarkdown = () => {
+    const raw = props.message || "";
+    const fileBase = window.location.origin + api;
+    const text = raw
+      .replace(/https?:\/\/(?:x|twitter)\.com\/[^\s\)\[]+\/status\/\d+[^\s\)\[]*/g, (url) => `[post](${url})`)
+      .replace(/\[\[IMG:([^\]]+)\]\]/g, (match, path) => `![image](${fileBase}/file?file=${path})`);
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+    const blob = new Blob([text], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `answer_${stamp}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const format = (message) => {
     if (props.position === "right_bubble") {
       return props.message
     }
-    const match = message.match(/<think>(.*?)<\/think>/sg);
+    let hasImages = false;
+    const processed = message
+      .replace(/https?:\/\/(?:x|twitter)\.com\/[^\s\)\[]+\/status\/\d+[^\s\)\[]*/g, (url) => `[post](${url})`)
+      .replace(/\[\[IMG:([^\]]+)\]\]/g, (match, path) => {
+        hasImages = true;
+        return `<a href="${api}/file?file=${path}" target="_blank" rel="noopener noreferrer"><img class="inline-post-img" src="${api}/file?file=${path}" alt="" /></a>`;
+      });
+    const match = processed.match(/<think>(.*?)<\/think>/sg);
     if (match) {
       const reasoning = match
         .map(item => item.replace(/<think>/, "")
           .replace(/<\/think>/, ""))
         .join(' ');
-      const remainingMessage = message.replace(/<think>.*?<\/think>/sg, "");
+      const remainingMessage = processed.replace(/<think>.*?<\/think>/sg, "");
       return (
         <div>
           <div className="collapsible-container">
@@ -46,11 +73,17 @@ function Message(props) {
             </div>
           </div>
           <div>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={hasImages ? [rehypeRaw] : undefined}>
               {remainingMessage}
             </ReactMarkdown>
           </div>
         </div>
+      );
+    } else if (hasImages) {
+      return (
+        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+          {processed}
+        </ReactMarkdown>
       );
     } else {
       const pattern = /[\w_-]+\.(jpeg|jpg|png|gif|bmp|webp|mp4|avi|mov|wmv|flv|mkv|mp3|wav|ogg|pdf|doc|ppt|xls|txt|docs|pptx|xlsx)/sg;
@@ -182,6 +215,19 @@ function Message(props) {
             format(props.message)
           }
         </div>
+        {props.position === "left_bubble" && !data && props.message && (
+          <button
+            className="msg-download-btn"
+            onClick={downloadMarkdown}
+            title="Download as Markdown"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+        )}
       </div>
       <div className="clear"></div>
     </div>
