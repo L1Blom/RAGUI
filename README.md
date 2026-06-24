@@ -61,3 +61,38 @@ There are 3 pages:
 |Reload documents|by the RAG|
 |LLM| select f.i. **gpt-4o-mini**|
 |Embedding| selet f.i.  **text-embedding-3-small**|
+
+## Features
+
+### Streaming Responses
+
+Both RAG prompts and X posts chat stream answers token-by-token to the
+client. The send button always uses streaming (`askAIStream()`), routing
+RAG prompts to `/prompt/<project>/stream` and X posts to
+`/prompt/<project>/xposts/chat`. Progress markers (e.g. `[Analyzing 3/16...]`)
+are stripped before saving to chat history.
+
+### Inline Post Images
+
+When analyzing X posts, cited post URLs are scanned for downloaded images.
+Images are inserted inline (floated right, 35% max-width) after the
+referenced post URL. Images are clickable to open full-size in a new tab.
+
+Post URLs are shortened to `[post]` links in both the chat display and
+downloaded markdown files.
+
+### Markdown Download
+
+Each assistant message bubble has a download button (bottom-right corner)
+that exports the answer as a `.md` file. Downloaded files include:
+
+- X post URLs as `[post](url)` markdown links
+- Images as `![image](absolute-url)` markdown syntax (using the current
+  browser origin so links work when opening the file elsewhere)
+
+### X Posts Mode
+
+When X posts are available for the current project, an **X** toggle button
+appears next to the send button. Clicking it switches between RAG mode
+(vector-search-based answers) and X Posts mode (full-context analysis via
+map-reduce).

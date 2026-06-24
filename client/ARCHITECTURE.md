@@ -47,6 +47,38 @@ const BASE_URL = process.env.REACT_APP_RAG_API_URL || 'http://localhost:8888';
 export const sendPrompt = (id, prompt) =>
   axios.post(`${BASE_URL}/prompt/${id}/`, { prompt });
 
+// Streaming prompt — use fetch + ReadableStream (not axios)
+export const streamPrompt = async (id, prompt, onChunk) => {
+  const response = await fetch(`${BASE_URL}/prompt/${id}/stream`, {
+    method: 'POST',
+    body: 'prompt=' + encodeURIComponent(prompt),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    onChunk(decoder.decode(value, { stream: true }));
+  }
+};
+
+// X posts chat (map-reduce, streamed)
+export const streamXPostsChat = async (id, prompt, onChunk) => {
+  const response = await fetch(`${BASE_URL}/prompt/${id}/xposts/chat`, {
+    method: 'POST',
+    body: 'prompt=' + encodeURIComponent(prompt),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    onChunk(decoder.decode(value, { stream: true }));
+  }
+};
+
 export const searchPrompt = (id, prompt) =>
   axios.post(`${BASE_URL}/prompt/${id}/search`, { prompt });
 
